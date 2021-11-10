@@ -52,3 +52,4 @@ D:\Visual Studio Repos\WaterColorSort\WaterColorSort\obj\Debug\net5.0-windows\Wa
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\complete.png
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip.png
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip2.png
+D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip3.png

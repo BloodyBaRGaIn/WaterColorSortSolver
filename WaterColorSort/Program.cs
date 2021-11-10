@@ -105,7 +105,7 @@ namespace WaterColorSort
                         y_layers.Add(y_base[i + 1]);
                     }
                 }
-                y_layers.Add(Enumerable.Reverse(pixelDatas).SkipWhile(d => d.c == empty).First().y);
+                y_layers.Add(Enumerable.Reverse(pixelDatas).SkipWhile(d => d.c == empty).FirstOrDefault().y);
 
                 for (int i = 0; i <= y_layers.Count - 2; i++)
                 {
@@ -204,7 +204,7 @@ namespace WaterColorSort
             while (!prev.Any());
 
             GotoNext(bounds, autoItX3);
-            SkipAd(Full, autoItX3);
+            //SkipAd(Full, autoItX3);
 
             goto _main;
         }
@@ -292,7 +292,8 @@ namespace WaterColorSort
             Bitmap[] tofind_arr = new Bitmap[]
             {
                 new(Image.FromFile("InterfaceResources/skip.png")),
-                new(Image.FromFile("InterfaceResources/skip2.png"))
+                new(Image.FromFile("InterfaceResources/skip2.png")),
+                new(Image.FromFile("InterfaceResources/skip3.png"))
             };
             while (true)
             {
