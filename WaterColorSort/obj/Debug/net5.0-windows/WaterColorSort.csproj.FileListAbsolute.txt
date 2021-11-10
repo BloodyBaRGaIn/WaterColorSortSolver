@@ -53,6 +53,7 @@ D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\In
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip.png
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip2.png
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip3.png
+<<<<<<< HEAD
 D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\AutoItX3.Assembly.dll
 D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\complete.png
 D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip.png
@@ -108,3 +109,5 @@ D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColor
 D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\ref\WaterColorSort.dll
 D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.pdb
 D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.genruntimeconfig.cache
+=======
+>>>>>>> 28df2abdfbdc70e24b427325ba730d05aee4ae0d

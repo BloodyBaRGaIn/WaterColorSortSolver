@@ -293,8 +293,12 @@ namespace WaterColorSort
             {
                 new(Image.FromFile("InterfaceResources/skip.png")),
                 new(Image.FromFile("InterfaceResources/skip2.png")),
+<<<<<<< HEAD
                 new(Image.FromFile("InterfaceResources/skip3.png")),
                 new(Image.FromFile("InterfaceResources/skip4.png")),
+=======
+                new(Image.FromFile("InterfaceResources/skip3.png"))
+>>>>>>> 28df2abdfbdc70e24b427325ba730d05aee4ae0d
             };
             while (true)
             {
