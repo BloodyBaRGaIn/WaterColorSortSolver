@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Visual Studio Repos\\WaterColorSort\\WaterColorSort\\WaterColorSort.csproj": {}
+    "D:\\repos\\WaterColorSortSolver\\WaterColorSort\\WaterColorSort.csproj": {}
   },
   "projects": {
-    "D:\\Visual Studio Repos\\WaterColorSort\\WaterColorSort\\WaterColorSort.csproj": {
+    "D:\\repos\\WaterColorSortSolver\\WaterColorSort\\WaterColorSort.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Visual Studio Repos\\WaterColorSort\\WaterColorSort\\WaterColorSort.csproj",
+        "projectUniqueName": "D:\\repos\\WaterColorSortSolver\\WaterColorSort\\WaterColorSort.csproj",
         "projectName": "WaterColorSort",
-        "projectPath": "D:\\Visual Studio Repos\\WaterColorSort\\WaterColorSort\\WaterColorSort.csproj",
-        "packagesPath": "C:\\Users\\kydravcev_ra\\.nuget\\packages\\",
-        "outputPath": "D:\\Visual Studio Repos\\WaterColorSort\\WaterColorSort\\obj\\",
+        "projectPath": "D:\\repos\\WaterColorSortSolver\\WaterColorSort\\WaterColorSort.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "D:\\repos\\WaterColorSortSolver\\WaterColorSort\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
         ],
         "configFilePaths": [
-          "C:\\Users\\kydravcev_ra\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0-windows7.0"
@@ -68,7 +70,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.403\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }
