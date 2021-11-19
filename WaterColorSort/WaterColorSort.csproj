@@ -29,6 +29,12 @@
     <None Update="InterfaceResources\skip4.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="InterfaceResources\skip5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="InterfaceResources\skip6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="level.png">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>

@@ -48,66 +48,11 @@ D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\sc
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\SDL2.dll
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\swresample-3.dll
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\swscale-5.dll
-D:\Visual Studio Repos\WaterColorSort\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.csproj.AssemblyReference.cache
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\complete.png
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip.png
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip2.png
 D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip3.png
-<<<<<<< HEAD
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\AutoItX3.Assembly.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\complete.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip2.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip3.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\blue.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\brown.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\cyan.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\dark_green.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\empty.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\gray.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\green.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\magenta.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\orange.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\pink.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\purple.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\red.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Resources\yellow.png
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\AutoItX3.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\AutoItX3_x64.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\adb.exe
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\AdbWinApi.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\AdbWinUsbApi.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\avcodec-58.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\avformat-58.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\avutil-56.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\scrcpy-console.bat
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\scrcpy-noconsole.vbs
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\scrcpy-server
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\scrcpy.exe
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\SDL2.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\swresample-3.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\scrcpy\swscale-5.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\WaterColorSort.exe
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\WaterColorSort.deps.json
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\WaterColorSort.runtimeconfig.json
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\WaterColorSort.runtimeconfig.dev.json
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\WaterColorSort.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\ref\WaterColorSort.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\WaterColorSort.pdb
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\Microsoft.Win32.SystemEvents.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\System.Drawing.Common.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\runtimes\win\lib\netcoreapp3.1\Microsoft.Win32.SystemEvents.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\runtimes\unix\lib\netcoreapp3.1\System.Drawing.Common.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\bin\Debug\net5.0-windows\runtimes\win\lib\netcoreapp3.1\System.Drawing.Common.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.csproj.AssemblyReference.cache
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\Interop.AutoItX3Lib.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.csproj.ResolveComReference.cache
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.GeneratedMSBuildEditorConfig.editorconfig
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.csproj.CoreCompileInputs.cache
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.csproj.CopyComplete
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\ref\WaterColorSort.dll
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.pdb
-D:\repos\WaterColorSortSolver\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.genruntimeconfig.cache
-=======
->>>>>>> 28df2abdfbdc70e24b427325ba730d05aee4ae0d
+D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip4.png
+D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip5.png
+D:\Visual Studio Repos\WaterColorSort\WaterColorSort\bin\Debug\net5.0-windows\InterfaceResources\skip6.png
+D:\Visual Studio Repos\WaterColorSort\WaterColorSort\obj\Debug\net5.0-windows\WaterColorSort.csproj.AssemblyReference.cache

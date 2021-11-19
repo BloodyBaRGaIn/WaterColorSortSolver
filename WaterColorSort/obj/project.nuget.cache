@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "inrnAtcheFNvZOxNDlbGyPHPIF/1it/zuPz/GSEqh5Q02Yl17P7i/2jicCzNXinwlUz4ghtAXZtNUqWCvhFUSA==",
+  "dgSpecHash": "CwJTxAC4Yb+x/PHu1x/4LTqpAbAllLMTz6e9eV9XYp9v/pec0UxMg1GHeewtJWwphf0Esf8JWYzJoBsaLhbYWg==",
   "success": true,
-  "projectFilePath": "D:\\repos\\WaterColorSortSolver\\WaterColorSort\\WaterColorSort.csproj",
+  "projectFilePath": "D:\\Visual Studio Repos\\WaterColorSort\\WaterColorSort\\WaterColorSort.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\User\\.nuget\\packages\\autoitx.dotnet\\3.3.14.5\\autoitx.dotnet.3.3.14.5.nupkg.sha512",
-    "C:\\Users\\User\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
-    "C:\\Users\\User\\.nuget\\packages\\system.drawing.common\\6.0.0\\system.drawing.common.6.0.0.nupkg.sha512"
+    "C:\\Users\\kydravcev_ra\\.nuget\\packages\\autoitx.dotnet\\3.3.14.5\\autoitx.dotnet.3.3.14.5.nupkg.sha512",
+    "C:\\Users\\kydravcev_ra\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
+    "C:\\Users\\kydravcev_ra\\.nuget\\packages\\system.drawing.common\\6.0.0\\system.drawing.common.6.0.0.nupkg.sha512"
   ],
   "logs": []
 }
