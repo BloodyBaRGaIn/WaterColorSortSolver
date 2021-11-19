@@ -56,7 +56,7 @@ namespace WaterColorSort
                 goto _main;
             }
 
-            Console.WriteLine("INPUT");
+            Console.WriteLine("\nINPUT\n");
             Bottle.PrintBottles(Bottles);
             Tree temp;
             foreach (Move move in Bottle.GetMoves(Bottles))
