@@ -73,7 +73,6 @@ namespace WaterColorSort
                 temp.Clear();
             }
 
-            //List<Move> _f = new();
             if (trees.Count == 0)
             {
                 goto _main;
@@ -84,37 +83,7 @@ namespace WaterColorSort
                 temp.FindSolution();
             }
             temp.FillMoves(final);
-
-            //for (int i = 0; i < trees.Count; i++)
-            //{
-            //    if (trees[i].TotalCount() == 0)
-            //    {
-            //        continue;
-            //    }
-            //    while (!trees[i].Any(t => t.Value.Win))
-            //    {
-            //        trees[i].FindSolution();
-            //    }
-            //    _f.Clear();
-            //    trees[i].FillMoves(_f);
-            //    if (final.Count == 0 || (final.Count > _f.Count && _f.Count > 0))
-            //    {
-            //        final.Clear();
-            //        final.AddRange(_f);
-            //    }
-            //    trees[i].Clear();
-            //}
-
-            //if (prev.TotalCount() == 0)
-            //{
-            //    goto _main;
-            //}
-            //while (!prev.Any(t => t.Value.Win))
-            //{
-            //    prev.FindSolution();
-            //}
-            //prev.FillMoves(final);
-
+            
             if (final.Count == 0)
             {
                 goto _main;
