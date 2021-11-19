@@ -28,6 +28,7 @@ namespace WaterColorSort.Classes
                 if (final[i].Equals(final[i + 1].Opposite))
                 {
                     final.RemoveAt(i--);
+                    continue;
                 }
                 if (final[i].to == final[i + 1].from && final[i].color == final[i + 1].color)
                 {
