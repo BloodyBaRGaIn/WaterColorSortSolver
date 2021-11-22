@@ -7,7 +7,7 @@ namespace WaterColorSort.Classes
 {
     internal struct PixelData
     {
-        internal const int PixelSize = 6;
+        internal const int PixelSize = 5;
         internal readonly int x, y;
         internal readonly UserColor c;
 
@@ -41,12 +41,12 @@ namespace WaterColorSort.Classes
                 cols.Add(cols_base[0]);
                 for (int idx = 0; idx < cols_base.Count - 1; idx++)
                 {
-                    if (cols_base[idx + 1] - cols_base[idx] >= 18)
+                    if (cols_base[idx + 1] - cols_base[idx] >= PixelSize * 4)
                     {
                         cols.Add(cols_base[idx + 1]);
                     }
                 }
-                cols.Add(cols_base.Last() + 50);
+                cols.Add(cols_base.Last() + PixelSize * 20);
                 for (int idx = 0; idx <= cols.Count - 2; idx++)
                 {
                     bottle_pixel_list.Add(layer.Where(d => d.x >= cols[idx] && d.x < cols[idx + 1]).ToList());
@@ -58,7 +58,7 @@ namespace WaterColorSort.Classes
         internal static bool FillYLayers(List<int> y_layers, List<PixelData> pixelDatas)
         {
             List<int> dist_y = new();
-            dist_y.AddRange(pixelDatas.Where(d => d.c == BitmapWork.empty).Select(d => d.y).Where(y => y > 75).Distinct().OrderBy(y => y));
+            dist_y.AddRange(pixelDatas.Where(d => d.c == BitmapWork.empty).Select(d => d.y).Distinct().OrderBy(y => y)); //.Where(y => y > 75)
             if (dist_y.Count == 0)
             {
                 return false;
@@ -66,9 +66,9 @@ namespace WaterColorSort.Classes
             y_layers.Add(dist_y[0]);
             for (int i = 0; i < dist_y.Count - 1; i++)
             {
-                List<PixelData> find_l = pixelDatas.Where(d => Math.Abs(d.y - dist_y[i + 1]) <= 5 && d.c.color == BitmapWork.empty)
+                List<PixelData> find_l = pixelDatas.Where(d => Math.Abs(d.y - dist_y[i + 1]) <= PixelSize && d.c.color == BitmapWork.empty)
                                                    .OrderBy(d => d.x).ToList();
-                if (dist_y[i + 1] - dist_y[i] >= 170 && find_l.Count >= 2 && find_l[1].x - find_l[0].x < 12)
+                if (dist_y[i + 1] - dist_y[i] >= 240 && find_l.Count >= 10 && find_l[1].x - find_l[0].x < PixelSize * 2)
                 {
                     y_layers.Add(dist_y[i + 1]);
                 }
@@ -86,8 +86,14 @@ namespace WaterColorSort.Classes
             return true;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Удалите неиспользуемый параметр", Justification = "<Ожидание>")]
         internal static void DataReduction(List<PixelData> pixelDatas)
         {
+            if (PixelSize == 1)
+            {
+                return;
+            }
+#pragma warning disable CS0162
             for (int i = 0; i < pixelDatas.Count - 1; i++)
             {
                 for (int j = i + 1; j < pixelDatas.Count; j++)

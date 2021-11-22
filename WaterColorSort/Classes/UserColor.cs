@@ -1,8 +1,9 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace WaterColorSort.Classes
 {
-    internal struct UserColor
+    internal struct UserColor : IComparable
     {
         internal readonly Color color;
         internal readonly string name;
@@ -23,6 +24,11 @@ namespace WaterColorSort.Classes
 
         public static bool operator !=(UserColor color1, UserColor color2) => !color1.Equals(color2);
 
-        public override int GetHashCode() => System.HashCode.Combine(color, name);
+        public override int GetHashCode() => HashCode.Combine(color, name);
+
+        int IComparable.CompareTo(object obj)
+        {
+            return name.CompareTo(((UserColor)obj).name);
+        }
     }
 }

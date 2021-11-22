@@ -15,10 +15,11 @@ namespace WaterColorSort.Classes
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
         internal static IEnumerable<PixelData> GetPixels(Rectangle bounds)
         {
-            using Bitmap image = new(bounds.Width, bounds.Height);
+            //using Bitmap image = new(bounds.Width, bounds.Height);
+            using Bitmap image = ProcessWork.GetImage().Clone(new Rectangle(0, 335, 720, 800), PixelFormat.Format32bppArgb);
             using (Graphics g = Graphics.FromImage(image))
             {
-                g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
+                //g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
             }
             image.Save("test.jpg", ImageFormat.Jpeg);
             if (!Directory.Exists(ResPath))
@@ -39,6 +40,8 @@ namespace WaterColorSort.Classes
                     yield return new PixelData(p.X, p.Y, new(tofind.GetPixel(0, 0), fname));
                 }
             }
+            image.Dispose();
+            GC.Collect();
         }
 
         private static string GetFileName(string path) => path[(path.LastIndexOf('\\') + 1)..path.LastIndexOf('.')];
@@ -151,10 +154,7 @@ namespace WaterColorSort.Classes
             {
                 foreach (PixelData data in bottle_pixels)
                 {
-                    Pen black_pen = new(Color.Black, 1);
-                    graphics.DrawRectangle(black_pen, new Rectangle(new(data.x, data.y), size));
-                    graphics.DrawRectangle(new Pen(data.c, 1), new Rectangle(new(data.x + 1, data.y + 1), size - new Size(2, 2)));
-                    graphics.DrawRectangle(black_pen, new Rectangle(new(data.x + 2, data.y + 2), size - new Size(4, 4)));
+                    graphics.FillRectangle(new SolidBrush(data.c), new Rectangle(new(data.x, data.y), size));
                 }
             }
             image.Save("level_find.png");

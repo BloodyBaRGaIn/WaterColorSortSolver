@@ -7,8 +7,11 @@ namespace WaterColorSort.Classes
 {
     internal sealed class Bottle : Stack<UserColor>
     {
-        internal const int MAX_SIZE = 4;
-        private const int PixelGroupMinSize = 4;
+        internal const int MAX_SIZE = 10;
+        internal const int MIN_SIZE = 2;
+        internal static int CURR_SIZE = 2;
+
+        private const int PixelGroupMinSize = 20;
         internal static bool Solution_Found = false;
 
         internal Bottle(params Color[] colors)
@@ -27,7 +30,7 @@ namespace WaterColorSort.Classes
             }
         }
 
-        internal bool IsCompleted => Count == 0 || (this.Distinct().Count() == 1 && Count == MAX_SIZE);
+        internal bool IsCompleted => Count == 0 || (this.Distinct().Count() == 1 && Count == CURR_SIZE);
 
         internal static bool TransferColors(Bottle from, Bottle to)
         {
@@ -36,7 +39,7 @@ namespace WaterColorSort.Classes
                 return false;
             }
             UserColor transf = from.Peek();
-            while (from.Count > 0 && to.Count < MAX_SIZE)
+            while (from.Count > 0 && to.Count < CURR_SIZE)
             {
                 if (from.Peek() != transf)
                 {
@@ -60,7 +63,7 @@ namespace WaterColorSort.Classes
         internal static bool IsPossibleTransfer(Bottle from, Bottle to) => (from.Distinct().Count() > 1 || to.Count != 0)
                                                                            && !from.Equals(to)
                                                                            && from.Count > 0
-                                                                           && to.Count < MAX_SIZE
+                                                                           && to.Count < CURR_SIZE
                                                                            && (to.Count == 0 || (from.Peek() == to.Peek()));
 
         internal static IEnumerable<Move> GetMoves(List<Bottle> bottles)
@@ -101,7 +104,7 @@ namespace WaterColorSort.Classes
             {
                 return;
             }
-            if (prev.iteration >= 5 * bottles.Count || prev.Root().TotalCount() >= 500 * bottles.Count)
+            if (prev.iteration >= (CURR_SIZE + 1) * (bottles.Count + 1)) // || prev.Root().TotalCount() >= 500 * bottles.Count
             {
                 return;
             }
@@ -148,6 +151,17 @@ namespace WaterColorSort.Classes
         internal static bool FillBottles(List<Bottle> bottles, Color empty, List<List<PixelData>> bottle_pixel_list)
         {
             bottles.Clear();
+            //int max_color_cnt = 0;
+            //foreach (List<PixelData> b in bottle_pixel_list)
+            //{
+            //    IEnumerable<IGrouping<UserColor, PixelData>> groups = b.GroupBy(p => p.c).Where(g => g.Key.color != empty && g.Count() > PixelGroupMinSize);
+            //    foreach (IGrouping<UserColor, PixelData> gr in groups)
+            //    {
+            //        max_color_cnt = Math.Max(max_color_cnt, groups.SelectMany(p => p).Count() / gr.Count());
+            //    }
+            //    //max_color_cnt = Math.Max(max_color_cnt, b.GroupBy(p => p.c).Count(g => g.Key.color != empty && g.Count() > PixelGroupMinSize));
+            //}
+            //CURR_SIZE = Math.Clamp(max_color_cnt, MIN_SIZE, MAX_SIZE);
             foreach (List<PixelData> b in bottle_pixel_list)
             {
                 if (!b.Any(d => d.c != empty))
@@ -157,10 +171,16 @@ namespace WaterColorSort.Classes
                 }
                 int min_y = b.Min(d => d.y);
                 int max_y = b.Where(d => d.c != empty).Max(d => d.y);
-                int segment_len = (int)(((max_y - min_y) / (MAX_SIZE + 0.5f)) + 1);
-                min_y += segment_len / 2;
+                if (Math.Abs(max_y - b.Where(d => d.c == empty).Max(d => d.y)) > 20)
+                {
+                    min_y = b.Where(d => d.c == empty).Max(d => d.y);
+                    b.RemoveAll(d => Math.Abs(min_y - d.y) > 20 && d.c == empty);
+                }
+                int segment_len = (int)(((max_y - min_y) / (CURR_SIZE + 0.5f)) + 1);
+                int segment_len_4 = (int)(((max_y - min_y) / 4.5f) + 1);
+                min_y += segment_len_4 / 2;
                 Bottle new_b = new();
-                for (int seg = MAX_SIZE - 1; seg >= 0; seg--)
+                for (int seg = CURR_SIZE - 1; seg >= 0; seg--)
                 {
                     int y_lim_min = min_y + (seg * segment_len);
                     IEnumerable<IGrouping<UserColor, PixelData>> groups = b.Where(d => d.y >= y_lim_min && d.y < y_lim_min + segment_len)
@@ -171,7 +191,7 @@ namespace WaterColorSort.Classes
                         UserColor color = groups.First().Key;
                         if (color == empty)
                         {
-                            return false;
+                            continue;
                         }
                         new_b.Push(color);
                     }
@@ -183,7 +203,7 @@ namespace WaterColorSort.Classes
 
         public new void Push(UserColor item)
         {
-            if (Count >= MAX_SIZE)
+            if (Count >= CURR_SIZE)
             {
                 throw new Exception("Overflow");
             }
