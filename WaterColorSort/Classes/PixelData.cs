@@ -57,8 +57,9 @@ namespace WaterColorSort.Classes
 
         internal static bool FillYLayers(List<int> y_layers, List<PixelData> pixelDatas)
         {
+            y_layers.Clear();
             List<int> dist_y = new();
-            dist_y.AddRange(pixelDatas.Where(d => d.c == BitmapWork.empty).Select(d => d.y).Distinct().OrderBy(y => y)); //.Where(y => y > 75)
+            dist_y.AddRange(pixelDatas.Where(d => d.c == BitmapWork.empty).Select(d => d.y).Distinct().OrderBy(y => y));
             if (dist_y.Count == 0)
             {
                 return false;
@@ -86,14 +87,8 @@ namespace WaterColorSort.Classes
             return true;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0060:Удалите неиспользуемый параметр", Justification = "<Ожидание>")]
         internal static void DataReduction(List<PixelData> pixelDatas)
         {
-            if (PixelSize == 1)
-            {
-                return;
-            }
-#pragma warning disable CS0162
             for (int i = 0; i < pixelDatas.Count - 1; i++)
             {
                 for (int j = i + 1; j < pixelDatas.Count; j++)

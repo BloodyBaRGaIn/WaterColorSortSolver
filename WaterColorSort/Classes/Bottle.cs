@@ -100,11 +100,7 @@ namespace WaterColorSort.Classes
 
         internal static void MakeMove(List<Bottle> bottles, Tree prev, Move move)
         {
-            if (Solution_Found)
-            {
-                return;
-            }
-            if (prev.iteration >= (CURR_SIZE + 1) * (bottles.Count + 1)) // || prev.Root().TotalCount() >= 500 * bottles.Count
+            if (Solution_Found || prev.iteration >= (CURR_SIZE + 1) * (bottles.Count + 1))
             {
                 return;
             }
@@ -151,17 +147,6 @@ namespace WaterColorSort.Classes
         internal static bool FillBottles(List<Bottle> bottles, Color empty, List<List<PixelData>> bottle_pixel_list)
         {
             bottles.Clear();
-            //int max_color_cnt = 0;
-            //foreach (List<PixelData> b in bottle_pixel_list)
-            //{
-            //    IEnumerable<IGrouping<UserColor, PixelData>> groups = b.GroupBy(p => p.c).Where(g => g.Key.color != empty && g.Count() > PixelGroupMinSize);
-            //    foreach (IGrouping<UserColor, PixelData> gr in groups)
-            //    {
-            //        max_color_cnt = Math.Max(max_color_cnt, groups.SelectMany(p => p).Count() / gr.Count());
-            //    }
-            //    //max_color_cnt = Math.Max(max_color_cnt, b.GroupBy(p => p.c).Count(g => g.Key.color != empty && g.Count() > PixelGroupMinSize));
-            //}
-            //CURR_SIZE = Math.Clamp(max_color_cnt, MIN_SIZE, MAX_SIZE);
             foreach (List<PixelData> b in bottle_pixel_list)
             {
                 if (!b.Any(d => d.c != empty))
@@ -191,7 +176,7 @@ namespace WaterColorSort.Classes
                         UserColor color = groups.First().Key;
                         if (color == empty)
                         {
-                            continue;
+                            return false;
                         }
                         new_b.Push(color);
                     }

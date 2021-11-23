@@ -9,18 +9,17 @@ namespace WaterColorSort.Classes
 {
     internal sealed class BitmapWork
     {
+        internal const int X = 0;
+        internal const int Y = 335;
+        internal const int W = 720;
+        internal const int H = 800;
         internal static Color empty;
         private const string ResPath = "Resources";
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        internal static IEnumerable<PixelData> GetPixels(Rectangle bounds)
+        internal static IEnumerable<PixelData> GetPixels()
         {
-            //using Bitmap image = new(bounds.Width, bounds.Height);
-            using Bitmap image = ProcessWork.GetImage().Clone(new Rectangle(0, 335, 720, 800), PixelFormat.Format32bppArgb);
-            using (Graphics g = Graphics.FromImage(image))
-            {
-                //g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
-            }
+            using Bitmap image = GetBitmap();
             image.Save("test.jpg", ImageFormat.Jpeg);
             if (!Directory.Exists(ResPath))
             {
@@ -43,6 +42,9 @@ namespace WaterColorSort.Classes
             image.Dispose();
             GC.Collect();
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        internal static Bitmap GetBitmap() => ProcessWork.GetImage().Clone(new(X, Y, W, H), PixelFormat.Format32bppArgb);
 
         private static string GetFileName(string path) => path[(path.LastIndexOf('\\') + 1)..path.LastIndexOf('.')];
 
