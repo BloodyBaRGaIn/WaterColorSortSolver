@@ -1,9 +1,13 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
 {
@@ -16,46 +20,50 @@ namespace WaterColorSort.Classes
         internal static Color empty;
         private const string ResPath = "Resources";
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
         internal static IEnumerable<PixelData> GetPixels()
         {
-            using Bitmap image = GetBitmap();
+            Bitmap image = GetBitmap();
             image.Save("test.jpg", ImageFormat.Jpeg);
             if (!Directory.Exists(ResPath))
             {
                 throw new DirectoryNotFoundException(ResPath);
             }
-            foreach (string file in Directory.GetFiles(ResPath))
+            List<(string file, Bitmap img_cpy, List<PixelData> result)> input_collection = Directory.GetFiles(ResPath)
+                .Select(s => (file: s, img_cpy: new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat), result: new List<PixelData>())).ToList();
+            ParallelLoopResult loopres = Parallel.ForEach(input_collection, param =>
             {
-                using Bitmap tofind = new(Image.FromFile(file));
-                List<Point> Pts = FindBitmapsEntry(image, tofind, 30);
-                string fname = GetFileName(file);
+                using Bitmap img_cpy = param.img_cpy;
+                using Bitmap tofind = new(Image.FromFile(param.file));
+                string fname = param.file[(param.file.LastIndexOf('\\') + 1)..param.file.LastIndexOf('.')];
                 if (fname == nameof(empty))
                 {
                     empty = tofind.GetPixel(0, 0);
                 }
-                foreach (Point p in Pts)
-                {
-                    yield return new PixelData(p.X, p.Y, new(tofind.GetPixel(0, 0), fname));
-                }
-            }
+                param.result.AddRange(FindBitmapsEntry(img_cpy, tofind, 30).Select(p => new PixelData(p.X, p.Y, new(tofind.GetPixel(0, 0), fname))));
+                tofind.Dispose();
+                img_cpy.Dispose();
+            });
             image.Dispose();
+            List<PixelData> result = input_collection.SelectMany(i => i.result).ToList();
+            input_collection.Clear();
             GC.Collect();
+            return result;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
         internal static Bitmap GetBitmap() => ProcessWork.GetImage().Clone(new(X, Y, W, H), PixelFormat.Format32bppArgb);
 
-        private static string GetFileName(string path) => path[(path.LastIndexOf('\\') + 1)..path.LastIndexOf('.')];
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        public static List<Point> FindBitmapsEntry(Bitmap sourceBitmap, Bitmap serchingBitmap, int toleration)
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        internal static List<Point> FindBitmapsEntry(Bitmap sourceBitmap, Bitmap serchingBitmap, int toleration)
         {
-            if (sourceBitmap == null || serchingBitmap == null)
+            if (sourceBitmap == null)
             {
-#pragma warning disable CA2208 // Правильно создавайте экземпляры исключений аргументов
-                throw new ArgumentNullException();
-#pragma warning restore CA2208 // Правильно создавайте экземпляры исключений аргументов
+                throw new ArgumentNullException(nameof(sourceBitmap));
+            }
+            if (serchingBitmap == null)
+            {
+                throw new ArgumentNullException(nameof(serchingBitmap));
             }
             if (sourceBitmap.PixelFormat != serchingBitmap.PixelFormat)
             {
@@ -68,14 +76,14 @@ namespace WaterColorSort.Classes
 
             int pixelFormatSize = Image.GetPixelFormatSize(sourceBitmap.PixelFormat) / 8;
 
-            BitmapData sourceBitmapData = sourceBitmap.LockBits(new Rectangle(0, 0, sourceBitmap.Width, sourceBitmap.Height),
+            BitmapData sourceBitmapData = sourceBitmap.LockBits(new(Point.Empty, sourceBitmap.Size),
                                                                 ImageLockMode.ReadOnly, sourceBitmap.PixelFormat);
             int sourceBitmapBytesLength = sourceBitmapData.Stride * sourceBitmap.Height;
             byte[] sourceBytes = new byte[sourceBitmapBytesLength];
             Marshal.Copy(sourceBitmapData.Scan0, sourceBytes, 0, sourceBitmapBytesLength);
             sourceBitmap.UnlockBits(sourceBitmapData);
 
-            BitmapData serchingBitmapData = serchingBitmap.LockBits(new Rectangle(0, 0, serchingBitmap.Width, serchingBitmap.Height),
+            BitmapData serchingBitmapData = serchingBitmap.LockBits(new(Point.Empty, serchingBitmap.Size),
                                                                     ImageLockMode.ReadOnly, serchingBitmap.PixelFormat);
             int serchingBitmapBytesLength = serchingBitmapData.Stride * serchingBitmap.Height;
             byte[] serchingBytes = new byte[serchingBitmapBytesLength];
@@ -147,7 +155,7 @@ namespace WaterColorSort.Classes
             return pointsList;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
         internal static void SaveColorImage(List<List<PixelData>> bottle_pixel_list, Rectangle bounds, Size size)
         {
             using Bitmap image = new(bounds.Width, bounds.Height);

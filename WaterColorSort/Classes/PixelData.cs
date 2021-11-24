@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -18,11 +19,15 @@ namespace WaterColorSort.Classes
             this.c = c;
         }
 
-        internal bool Colorsimilar(PixelData other)
+        internal bool Colorsimilar(PixelData other, int tolerance = 10)
         {
             Color _c = c.color;
-            return (Math.Abs(_c.R - other.c.color.R) <= 10 && Math.Abs(_c.G - other.c.color.G) <= 10 && Math.Abs(_c.B - other.c.color.B) <= 10);
+            return (Math.Abs(_c.R - other.c.color.R) <= tolerance && Math.Abs(_c.G - other.c.color.G) <= tolerance && Math.Abs(_c.B - other.c.color.B) <= tolerance);
         }
+
+        public override bool Equals(object obj) => obj is PixelData data && data.x == x && data.y == y && data.c == c;
+
+        public override int GetHashCode() => HashCode.Combine(x, y, c);
 
         internal static bool MakeDataSets(List<int> y_layers, List<PixelData> pixelDatas, List<List<PixelData>> bottle_pixel_list)
         {
@@ -85,22 +90,6 @@ namespace WaterColorSort.Classes
                 y_layers.Remove(Math.Min(y_layers[^1], y_layers[^2]));
             }
             return true;
-        }
-
-        internal static void DataReduction(List<PixelData> pixelDatas)
-        {
-            for (int i = 0; i < pixelDatas.Count - 1; i++)
-            {
-                for (int j = i + 1; j < pixelDatas.Count; j++)
-                {
-                    if (Math.Abs(pixelDatas[i].x - pixelDatas[j].x) < PixelSize
-                        && Math.Abs(pixelDatas[i].y - pixelDatas[j].y) < PixelSize
-                        && pixelDatas[i].Colorsimilar(pixelDatas[j]))
-                    {
-                        pixelDatas.RemoveAt(j--);
-                    }
-                }
-            }
         }
     }
 }

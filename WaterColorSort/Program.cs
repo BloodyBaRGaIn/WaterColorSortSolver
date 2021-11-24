@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -10,8 +11,8 @@ namespace WaterColorSort
     internal static class Program
     {
         private const int Offset = 20;
-        
-        private static int Main(string[] args)
+
+        private static void Main()
         {
             #region Init
             List<Bottle> Bottles = new();
@@ -20,7 +21,7 @@ namespace WaterColorSort
             List<int> y_layers = new();
             List<Tree> trees = new();
             List<Move> final = new();
-            Rectangle bounds = new(Point.Empty, new Size(720, 800));
+            Rectangle bounds = new(Point.Empty, new Size(BitmapWork.W, BitmapWork.H));
             #endregion
             while (true)
             {
@@ -29,7 +30,6 @@ namespace WaterColorSort
                 ProcessWork.StartApp().Wait();
                 Console.WriteLine("APP STARTED");
                 #region Clear
-                Bottle.Solution_Found = false;
                 Bottle.CURR_SIZE = Bottle.MIN_SIZE;
                 Bottles.Clear();
                 pixelDatas.Clear();
@@ -39,11 +39,9 @@ namespace WaterColorSort
                 final.Clear();
                 #endregion
                 Thread.Sleep(1500); /* new level await */
-                
-                pixelDatas.AddRange(BitmapWork.GetPixels().OrderBy(d => d.y).ThenBy(d => d.x));
+
+                pixelDatas.AddRange(BitmapWork.GetPixels().Distinct(new PixelComparer()).OrderBy(d => d.y).ThenBy(d => d.x));
                 Console.WriteLine("GOT PIXELS");
-                PixelData.DataReduction(pixelDatas);
-                Console.WriteLine("DATA REDUCED");
                 if (!PixelData.FillYLayers(y_layers, pixelDatas)
                     || !PixelData.MakeDataSets(y_layers, pixelDatas, bottle_pixel_list))
                 {
@@ -52,6 +50,7 @@ namespace WaterColorSort
                 Console.WriteLine("DATA STRUCTURED");
                 BitmapWork.SaveColorImage(bottle_pixel_list, bounds, new Size(1, 1) * PixelData.PixelSize);
                 bottle_pixel_list.RemoveAll(p => p.Count <= 10);
+                Bottle.Solution_Found = false;
             fill:
                 if (!Bottle.FillBottles(Bottles, BitmapWork.empty, bottle_pixel_list))
                 {
@@ -76,10 +75,7 @@ namespace WaterColorSort
                     foreach (Move move in Bottle.GetMoves(Bottles))
                     {
                         temp = new();
-                        System.Threading.Tasks.Task SolveTask = System.Threading.Tasks.Task.Run(() =>
-                        {
-                            Bottle.MakeMove(Bottles, temp, move);
-                        });
+                        System.Threading.Tasks.Task SolveTask = System.Threading.Tasks.Task.Run(() => Bottle.MakeMove(Bottles, temp, move));
                         if (SolveTask.Wait(2000) && Bottle.Solution_Found)
                         {
                             temp.ClearTree();
@@ -89,10 +85,7 @@ namespace WaterColorSort
                                 trees.Add(temp);
                             }
                         }
-                        else
-                        {
-                            //temp.Clear();
-                        }
+                        GC.Collect();
                     }
                 }
 
@@ -110,6 +103,7 @@ namespace WaterColorSort
                 }
 
                 Console.WriteLine($"\nSOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}\n");
+                Bottle.Solution_Found = true;
                 List<Move> f_list = new();
                 foreach (Tree tree in trees.Where(t => t.Root().TotalCount() > 0).OrderBy(t => t.Root().TotalCount()))
                 {
@@ -130,6 +124,7 @@ namespace WaterColorSort
                             final.AddRange(f_list);
                         }
                     }
+                    GC.Collect();
                 }
 
                 //temp = trees.Where(t => t.Root().TotalCount() > 0).OrderBy(t => t.Root().TotalCount()).FirstOrDefault();
@@ -140,7 +135,7 @@ namespace WaterColorSort
                     continue;
                 }
 
-                //Move.ClearMoves(final);
+                Move.ClearMoves(final);
 
                 Console.WriteLine($"\nTOTAL MOVES COUNT: {final.Count}");
 
@@ -152,7 +147,6 @@ namespace WaterColorSort
                     failed = true;
                 }
 
-                Console.WriteLine();
                 Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
 
                 Console.WriteLine("\nRESULT\n");
@@ -166,7 +160,7 @@ namespace WaterColorSort
                     continue;
                 }
                 Console.WriteLine($"\n{final.Count} MOVES PERFORMED\n");
-                Thread.Sleep(1500);
+                Thread.Sleep(1000);
 
                 Move.GotoNext();
 

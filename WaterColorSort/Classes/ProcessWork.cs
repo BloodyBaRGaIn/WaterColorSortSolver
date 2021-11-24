@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO;
+﻿
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
@@ -14,33 +14,34 @@ namespace WaterColorSort.Classes
         private static readonly string CURR_DIR = Directory.GetCurrentDirectory();
         private static readonly string ADB = $"{CURR_DIR}\\scrcpy\\adb.exe";
         private static readonly string StartCommand = $"shell am start {AppName}/{AppActivity}";
-        private static string MakeClickCommand(int x, int y) => $"input tap {x} {y}";
+        private static string MakeClickCommand(int x, int y) => $"input tap {x} {y} & sleep 0.15";
+
+        internal static bool CheckDevice() => System.Text.RegularExpressions.Regex.Matches(GetStreamData($"devices"), @"\d+\t\w+").Count == 1;
 
         internal static Task StartApp(int start_delay = 15000)
         {
-            if (GetStreamLength($"shell pidof {AppName}") == 0)
+            while (!CheckDevice())
             {
-                RunCommand(StartCommand);
-                return Task.Delay(start_delay);
+                Task.Delay(100).Wait();
             }
-            else
-            {
-                RunCommand(StartCommand);
-                return Task.Delay(1000);
-            }
+            Task delay = Task.Delay(GetStreamData($"shell pidof {AppName}").Length == 0 ? start_delay : 1000);
+            RunCommand(StartCommand).Wait();
+            return delay;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
         internal static System.Drawing.Bitmap GetImage()
         {
             Stream stream = GetStream($"shell screencap -p");
-            List<byte> data = new(1024);
+            const int Capacity = 0x400;
+            List<byte> data = new(Capacity);
+            byte[] buf = new byte[Capacity];
             bool isCR = false;
 
             int read;
             do
             {
-                byte[] buf = new byte[1024];
-                read = stream.Read(buf, 0, buf.Length);
+                read = stream.Read(buf, 0, Capacity);
 
                 for (int i = 0; i < read; i++) //convert CRLF to LF 
                 {
@@ -57,20 +58,12 @@ namespace WaterColorSort.Classes
             }
             while (read > 0);
 
-            if (data.Count == 0)
-            {
-                Console.WriteLine("fail");
-                return null;
-            }
-
-            using MemoryStream memory = new(data.ToArray());
-#pragma warning disable CA1416 // Проверка совместимости платформы
-            return new(memory);
-#pragma warning restore CA1416 // Проверка совместимости платформы
+            return data.Count == 0 ? null : (new(new MemoryStream(data.ToArray())));
         }
 
-        internal static void Click(int x, int y) => RunCommand($"shell {MakeClickCommand(x, y)}");
-        internal static void Click(List<(int x, int y)> ps)
+        internal static async Task Click(int x, int y) => await RunCommand($"shell {MakeClickCommand(x, y)}");
+
+        internal static async Task Click(List<(int x, int y)> ps)
         {
             if (ps.Count == 0)
             {
@@ -81,10 +74,10 @@ namespace WaterColorSort.Classes
             {
                 command += $"{MakeClickCommand(x, y)}; ";
             }
-            RunCommand($"{command[..^2]}\"");
+            await RunCommand($"{command[..^2]}\"");
         }
 
-        private static void RunCommand(string command) => Process.Start(GetInfo(command)).WaitForExit();
+        private static async Task RunCommand(string command) => await Process.Start(GetInfo(command)).WaitForExitAsync();
 
         private static ProcessStartInfo GetInfo(string command, bool redirect = true)
         {
@@ -99,7 +92,7 @@ namespace WaterColorSort.Classes
 
         private static Stream GetStream(string command) => Process.Start(GetInfo(command)).StandardOutput.BaseStream;
 
-        private static int GetStreamLength(string command)
+        private static string GetStreamData(string command)
         {
             Stream stream = GetStream(command);
             string read = "";
@@ -113,7 +106,7 @@ namespace WaterColorSort.Classes
                 }
                 read += (char)r;
             }
-            return read.Length;
+            return read;
         }
     }
 }

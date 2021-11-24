@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 
 namespace WaterColorSort.Classes
@@ -21,12 +21,23 @@ namespace WaterColorSort.Classes
 
         internal Move Opposite => new(to, from, color);
 
+        internal static void ClearMoves(List<Move> moves)
+        {
+            for (int i = 0; i < moves.Count - 1; i++)
+            {
+                if (moves[i].Equals(moves[i + 1].Opposite))
+                {
+                    moves.RemoveAt(i--);
+                }
+            }
+        }
+
         internal static void PerformMoves(List<List<PixelData>> bottle_pixel_list, IEnumerable<Move> final, int offset)
         {
             List<(int x, int y)> coords = bottle_pixel_list.Select(p => ((int)p.Average(p => p.x) + BitmapWork.X, (int)p.Average(p => p.y) + offset + BitmapWork.Y)).ToList();
             foreach (Move move in final)
             {
-                ProcessWork.Click(new List<(int, int)>(3) { coords[move.from], coords[move.to], coords[move.to] });
+                ProcessWork.Click(new List<(int, int)>(3) { coords[move.from], coords[move.to], coords[move.to] }).Wait();
                 System.Console.WriteLine(move);
             }
         }
@@ -39,7 +50,7 @@ namespace WaterColorSort.Classes
             List<Point> Pts = BitmapWork.FindBitmapsEntry(image, tofind, 10);
             if (Pts.Count > 0)
             {
-                ProcessWork.Click((int)Pts.Average(p => p.X) + BitmapWork.X, (int)Pts.Average(p => p.Y) + BitmapWork.Y);
+                ProcessWork.Click((int)Pts.Average(p => p.X) + BitmapWork.X, (int)Pts.Average(p => p.Y) + BitmapWork.Y).Wait();
             }
             image.Dispose();
             System.GC.Collect();
