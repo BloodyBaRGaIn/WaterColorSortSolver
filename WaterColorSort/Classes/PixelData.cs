@@ -29,12 +29,14 @@ namespace WaterColorSort.Classes
 
         public override int GetHashCode() => HashCode.Combine(x, y, c);
 
-        internal static bool MakeDataSets(List<int> y_layers, List<PixelData> pixelDatas, List<List<PixelData>> bottle_pixel_list)
+        internal static bool MakeDataSets(List<int> y_layers, List<PixelData> pixelDatas, List<List<PixelData>> bottle_pixel_list, out List<int> del)
         {
+            del = new();
             List<int> cols_base = new();
             List<int> cols = new();
             for (int i = 0; i <= y_layers.Count - 2; i++)
             {
+                del.Add(cols.Count + del.ElementAtOrDefault(del.Count - 1) - (del.Count > 0 ? 1 : 0));
                 IEnumerable<PixelData> layer = pixelDatas.Where(d => d.y >= y_layers[i] && d.y < y_layers[i + 1]).ToList();
                 cols_base.Clear();
                 cols_base.AddRange(layer.Where(d => d.c == BitmapWork.empty).Select(d => d.x).Distinct().OrderBy(x => x));

@@ -53,7 +53,7 @@
     <None Update="Resources\cyan.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\dark_green.png">
+    <None Update="Resources\dark_cyan.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\empty.png">

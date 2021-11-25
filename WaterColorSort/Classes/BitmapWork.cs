@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
 {
-    internal sealed class BitmapWork
+    internal static class BitmapWork
     {
         internal const int X = 0;
         internal const int Y = 335;
@@ -29,6 +29,7 @@ namespace WaterColorSort.Classes
             {
                 throw new DirectoryNotFoundException(ResPath);
             }
+            UserColor.Names.Clear();
             List<(string file, Bitmap img_cpy, List<PixelData> result)> input_collection = Directory.GetFiles(ResPath)
                 .Select(s => (file: s, img_cpy: new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat), result: new List<PixelData>())).ToList();
             ParallelLoopResult loopres = Parallel.ForEach(input_collection, param =>
@@ -36,6 +37,7 @@ namespace WaterColorSort.Classes
                 using Bitmap img_cpy = param.img_cpy;
                 using Bitmap tofind = new(Image.FromFile(param.file));
                 string fname = param.file[(param.file.LastIndexOf('\\') + 1)..param.file.LastIndexOf('.')];
+                UserColor.Names.Add(fname);
                 if (fname == nameof(empty))
                 {
                     empty = tofind.GetPixel(0, 0);
@@ -44,6 +46,7 @@ namespace WaterColorSort.Classes
                 tofind.Dispose();
                 img_cpy.Dispose();
             });
+            UserColor.Names.Sort();
             image.Dispose();
             List<PixelData> result = input_collection.SelectMany(i => i.result).ToList();
             input_collection.Clear();

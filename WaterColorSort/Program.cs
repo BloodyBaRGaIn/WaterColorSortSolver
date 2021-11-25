@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using WaterColorSort.Classes;
 
 namespace WaterColorSort
@@ -38,12 +39,11 @@ namespace WaterColorSort
                 trees.Clear();
                 final.Clear();
                 #endregion
-                Thread.Sleep(1500); /* new level await */
 
                 pixelDatas.AddRange(BitmapWork.GetPixels().Distinct(new PixelComparer()).OrderBy(d => d.y).ThenBy(d => d.x));
                 Console.WriteLine("GOT PIXELS");
                 if (!PixelData.FillYLayers(y_layers, pixelDatas)
-                    || !PixelData.MakeDataSets(y_layers, pixelDatas, bottle_pixel_list))
+                    || !PixelData.MakeDataSets(y_layers, pixelDatas, bottle_pixel_list, out List<int> del))
                 {
                     continue;
                 }
@@ -56,7 +56,6 @@ namespace WaterColorSort
                 {
                     continue;
                 }
-                Console.WriteLine($"TRYING TO SOLVE WITH CAPACITY OF {Bottle.CURR_SIZE}");
                 bool wrong_size = false;
                 IEnumerable<UserColor> bottle_content = Bottles.SelectMany(b => b);
                 foreach (UserColor color in bottle_content)
@@ -71,18 +70,33 @@ namespace WaterColorSort
                 if (!wrong_size)
                 {
                     Console.WriteLine("\nINPUT\n");
-                    Bottle.PrintBottles(Bottles);
+                    //Bottle.PrintBottles(Bottles);
+                    //Console.WriteLine();
+                    Bottle.PrintColoredBottles(Bottles, del);
                     foreach (Move move in Bottle.GetMoves(Bottles))
                     {
                         temp = new();
-                        System.Threading.Tasks.Task SolveTask = System.Threading.Tasks.Task.Run(() => Bottle.MakeMove(Bottles, temp, move));
-                        if (SolveTask.Wait(2000) && Bottle.Solution_Found)
+                        using (Task SolveTask = Task.Run(() => Bottle.MakeMove(Bottles, temp, move)))
                         {
-                            temp.ClearTree();
-                            Bottle.Solution_Found = false;
-                            if (temp.Count > 0)
+                            if (SolveTask.Wait(2000) && Bottle.Solution_Found)
                             {
-                                trees.Add(temp);
+                                temp.ClearTree();
+                                Bottle.Solution_Found = false;
+                                if (temp.Count > 0)
+                                {
+                                    trees.Add(temp);
+                                }
+                            }
+                            try
+                            {
+                                SolveTask.Dispose();
+                            }
+                            catch
+                            {
+                                Bottle.Solution_Found = true;
+                                SolveTask.Wait();
+                                SolveTask.Dispose();
+                                Bottle.Solution_Found = false;
                             }
                         }
                         GC.Collect();
@@ -97,39 +111,38 @@ namespace WaterColorSort
                     }
                     else
                     {
-                        Bottle.CURR_SIZE = Bottle.MIN_SIZE;
+                        continue;
                     }
                     goto fill;
                 }
 
-                Console.WriteLine($"\nSOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}\n");
+                Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
                 Bottle.Solution_Found = true;
                 List<Move> f_list = new();
                 foreach (Tree tree in trees.Where(t => t.Root().TotalCount() > 0).OrderBy(t => t.Root().TotalCount()))
                 {
-                    System.Threading.Tasks.Task SolveTask = System.Threading.Tasks.Task.Run(() =>
+                    using (Task SolveTask = Task.Run(() =>
                     {
                         while (!tree.Any(t => t.Value.Win))
                         {
                             tree.FindSolution();
                         }
-                    });
-                    if (SolveTask.Wait(2000))
+                    }))
                     {
-                        f_list.Clear();
-                        tree.FillMoves(f_list);
-                        if (f_list.Count > 0 && (f_list.Count < final.Count || final.Count == 0))
+                        if (SolveTask.Wait(2000))
                         {
-                            final.Clear();
-                            final.AddRange(f_list);
+                            f_list.Clear();
+                            tree.FillMoves(f_list);
+                            if (f_list.Count > 0 && (f_list.Count < final.Count || final.Count == 0))
+                            {
+                                final.Clear();
+                                final.AddRange(f_list);
+                            }
                         }
                     }
                     GC.Collect();
                 }
 
-                //temp = trees.Where(t => t.Root().TotalCount() > 0).OrderBy(t => t.Root().TotalCount()).FirstOrDefault();
-
-                //temp.FillMoves(final);
                 if (final.Count == 0)
                 {
                     continue;
@@ -150,7 +163,10 @@ namespace WaterColorSort
                 Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
 
                 Console.WriteLine("\nRESULT\n");
-                Bottle.PrintBottles(Bottles);
+                //Bottle.PrintBottles(Bottles);
+                //Console.WriteLine();
+                Bottle.PrintColoredBottles(Bottles, del);
+                del.Clear();
 
                 Console.WriteLine("\nMOVES\n");
                 Move.PerformMoves(bottle_pixel_list, final, Offset);

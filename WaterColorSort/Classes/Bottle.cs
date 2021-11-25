@@ -187,6 +187,45 @@ namespace WaterColorSort.Classes
             return true;
         }
 
+
+        internal static void PrintColoredBottles(List<Bottle> Bottles, List<int> del)
+        {
+            if (del[^1] != Bottles.Count)
+            {
+                del.Add(Bottles.Count);
+            }
+            for (int idx = 0; idx < del.Count - 1; idx++)
+            {
+                for (int i = 0; i < CURR_SIZE; i++)
+                {
+                    if (idx > 0 && del[idx + 1] - del[idx] != del[idx] - del[idx - 1])
+                    {
+                        Console.Write("  ");
+                    }
+                    for (int b = del[idx]; b < del[idx + 1]; b++)
+                    {
+                        Console.Write('|');
+                        Console.ForegroundColor = Bottles[b].ElementAtOrDefault(i + (Bottles[b].Count - CURR_SIZE)).GetNearestColor();
+                        Console.Write("##");
+                        Console.ResetColor();
+                        Console.Write('|');
+                        Console.Write(' ');
+                    }
+                    Console.WriteLine();
+                }
+                if (idx > 0 && del[idx + 1] - del[idx] != del[idx] - del[idx - 1])
+                {
+                    Console.Write("  ");
+                }
+                for (int b = del[idx]; b < del[idx + 1]; b++)
+                {
+                    Console.Write(b.ToString().PadLeft(3).PadRight(5));
+                }
+                Console.WriteLine();
+                Console.WriteLine();
+            }
+        }
+
         public new void Push(UserColor item)
         {
             if (Count >= CURR_SIZE)

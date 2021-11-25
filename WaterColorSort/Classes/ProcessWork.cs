@@ -10,11 +10,11 @@ namespace WaterColorSort.Classes
     {
         private const string AppName = "com.vnstartllc.sort.water";
         private const string AppActivity = "org.cocos2dx.javascript.AppActivity";
-
+        private const double DefaultSleep = 0.15;
         private static readonly string CURR_DIR = Directory.GetCurrentDirectory();
         private static readonly string ADB = $"{CURR_DIR}\\scrcpy\\adb.exe";
         private static readonly string StartCommand = $"shell am start {AppName}/{AppActivity}";
-        private static string MakeClickCommand(int x, int y) => $"input tap {x} {y} & sleep 0.15";
+        private static string MakeClickCommand(int x, int y, double sleep = DefaultSleep) => $"input tap {x} {y} & sleep {sleep.ToString().Replace(',', '.')}";
 
         internal static bool CheckDevice() => System.Text.RegularExpressions.Regex.Matches(GetStreamData($"devices"), @"\d+\t\w+").Count == 1;
 
@@ -61,18 +61,18 @@ namespace WaterColorSort.Classes
             return data.Count == 0 ? null : (new(new MemoryStream(data.ToArray())));
         }
 
-        internal static async Task Click(int x, int y) => await RunCommand($"shell {MakeClickCommand(x, y)}");
+        internal static async Task Click(int x, int y, double sleep = DefaultSleep) => await RunCommand($"shell {MakeClickCommand(x, y, sleep)}");
 
-        internal static async Task Click(List<(int x, int y)> ps)
+        internal static async Task Click(List<((int x, int y), double sleep)> ps)
         {
             if (ps.Count == 0)
             {
                 return;
             }
             string command = "shell \"";
-            foreach ((int x, int y) in ps)
+            foreach (((int x, int y), double sleep) in ps)
             {
-                command += $"{MakeClickCommand(x, y)}; ";
+                command += $"{MakeClickCommand(x, y, sleep)}; ";
             }
             await RunCommand($"{command[..^2]}\"");
         }

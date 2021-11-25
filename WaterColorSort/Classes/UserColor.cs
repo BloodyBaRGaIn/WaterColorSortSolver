@@ -15,6 +15,26 @@ namespace WaterColorSort.Classes
             this.name = name;
         }
 
+        internal static System.Collections.Generic.List<string> Names = new();
+        private static readonly ConsoleColor[] consoleColors = new ConsoleColor[]
+        {
+            ConsoleColor.Blue,
+            ConsoleColor.DarkRed,
+            ConsoleColor.Cyan,
+            ConsoleColor.DarkCyan,
+            ConsoleColor.DarkGray,
+            ConsoleColor.Green,
+            ConsoleColor.Magenta,
+            ConsoleColor.DarkYellow,
+            ConsoleColor.White,
+            ConsoleColor.DarkMagenta,
+            ConsoleColor.Red,
+            ConsoleColor.Yellow,
+            ConsoleColor.Black
+        };
+
+        internal ConsoleColor GetNearestColor() => Names.Count == 0 || Names.IndexOf(name) == -1 ? ConsoleColor.Black : consoleColors[Names.IndexOf(name)];
+
         public static implicit operator Color(UserColor color) => color.color;
 
         public static explicit operator UserColor(Color color) => new(color);

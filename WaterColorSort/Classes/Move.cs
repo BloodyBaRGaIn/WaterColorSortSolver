@@ -32,13 +32,23 @@ namespace WaterColorSort.Classes
             }
         }
 
+        internal void PrintColored()
+        {
+            System.Console.Write($"{from} -> {to} (");
+            System.Console.ForegroundColor = color.GetNearestColor();
+            System.Console.Write('#');
+            System.Console.ResetColor();
+            System.Console.WriteLine(')');
+        }
+
         internal static void PerformMoves(List<List<PixelData>> bottle_pixel_list, IEnumerable<Move> final, int offset)
         {
             List<(int x, int y)> coords = bottle_pixel_list.Select(p => ((int)p.Average(p => p.x) + BitmapWork.X, (int)p.Average(p => p.y) + offset + BitmapWork.Y)).ToList();
             foreach (Move move in final)
             {
-                ProcessWork.Click(new List<(int, int)>(3) { coords[move.from], coords[move.to], coords[move.to] }).Wait();
-                System.Console.WriteLine(move);
+                ProcessWork.Click(new List<((int, int), double)>(3) { (coords[move.from], 0.1), (coords[move.to], 0.02), (coords[move.to], 0) }).Wait();
+                //System.Console.WriteLine(move);
+                move.PrintColored();
             }
         }
 
@@ -50,7 +60,7 @@ namespace WaterColorSort.Classes
             List<Point> Pts = BitmapWork.FindBitmapsEntry(image, tofind, 10);
             if (Pts.Count > 0)
             {
-                ProcessWork.Click((int)Pts.Average(p => p.X) + BitmapWork.X, (int)Pts.Average(p => p.Y) + BitmapWork.Y).Wait();
+                ProcessWork.Click((int)Pts.Average(p => p.X) + BitmapWork.X, (int)Pts.Average(p => p.Y) + BitmapWork.Y, 0).Wait();
             }
             image.Dispose();
             System.GC.Collect();
