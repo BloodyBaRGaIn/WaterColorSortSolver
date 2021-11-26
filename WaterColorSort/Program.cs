@@ -16,6 +16,7 @@ namespace WaterColorSort
         private static void Main()
         {
             #region Init
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
             List<Bottle> Bottles = new();
             List<PixelData> pixelDatas = new();
             List<List<PixelData>> bottle_pixel_list = new();
@@ -23,6 +24,7 @@ namespace WaterColorSort
             List<Tree> trees = new();
             List<Move> final = new();
             Rectangle bounds = new(Point.Empty, new Size(BitmapWork.W, BitmapWork.H));
+            UserColor.InitDict();
             #endregion
             while (true)
             {

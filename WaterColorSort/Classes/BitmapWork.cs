@@ -18,35 +18,45 @@ namespace WaterColorSort.Classes
         internal const int W = 720;
         internal const int H = 800;
         internal static Color empty;
-        private const string ResPath = "Resources";
+
+        internal static (Bitmap img, string name)[] named_resources = new (Bitmap, string)[]
+        {
+            (Resources.Palette.blue,        nameof(Resources.Palette.blue)),
+            (Resources.Palette.brown,       nameof(Resources.Palette.brown)),
+            (Resources.Palette.cyan,        nameof(Resources.Palette.cyan)),
+            (Resources.Palette.dark_cyan,   nameof(Resources.Palette.dark_cyan)),
+            (Resources.Palette.empty,       nameof(Resources.Palette.empty)),
+            (Resources.Palette.gray,        nameof(Resources.Palette.gray)),
+            (Resources.Palette.green,       nameof(Resources.Palette.green)),
+            (Resources.Palette.magenta,     nameof(Resources.Palette.magenta)),
+            (Resources.Palette.orange,      nameof(Resources.Palette.orange)),
+            (Resources.Palette.pink,        nameof(Resources.Palette.pink)),
+            (Resources.Palette.purple,      nameof(Resources.Palette.purple)),
+            (Resources.Palette.red,         nameof(Resources.Palette.red)),
+            (Resources.Palette.yellow,      nameof(Resources.Palette.yellow)),
+        };
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
         internal static IEnumerable<PixelData> GetPixels()
         {
-            Bitmap image = GetBitmap();
+            using Bitmap image = GetBitmap();
             image.Save("test.jpg", ImageFormat.Jpeg);
-            if (!Directory.Exists(ResPath))
-            {
-                throw new DirectoryNotFoundException(ResPath);
-            }
-            UserColor.Names.Clear();
-            List<(string file, Bitmap img_cpy, List<PixelData> result)> input_collection = Directory.GetFiles(ResPath)
-                .Select(s => (file: s, img_cpy: new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat), result: new List<PixelData>())).ToList();
+
+            List<(Bitmap file, string name, Bitmap img_cpy, List<PixelData> result)> input_collection = named_resources
+                .Select(s => (file: s.Item1, name: s.Item2, img_cpy: new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat), result: new List<PixelData>())).ToList();
             ParallelLoopResult loopres = Parallel.ForEach(input_collection, param =>
             {
                 using Bitmap img_cpy = param.img_cpy;
-                using Bitmap tofind = new(Image.FromFile(param.file));
-                string fname = param.file[(param.file.LastIndexOf('\\') + 1)..param.file.LastIndexOf('.')];
-                UserColor.Names.Add(fname);
-                if (fname == nameof(empty))
+                using Bitmap tofind = new(param.file);
+
+                if (param.name == nameof(empty))
                 {
                     empty = tofind.GetPixel(0, 0);
                 }
-                param.result.AddRange(FindBitmapsEntry(img_cpy, tofind, 30).Select(p => new PixelData(p.X, p.Y, new(tofind.GetPixel(0, 0), fname))));
+                param.result.AddRange(FindBitmapsEntry(img_cpy, tofind, 30).Select(p => new PixelData(p.X, p.Y, new(tofind.GetPixel(0, 0), param.name))));
                 tofind.Dispose();
                 img_cpy.Dispose();
             });
-            UserColor.Names.Sort();
             image.Dispose();
             List<PixelData> result = input_collection.SelectMany(i => i.result).ToList();
             input_collection.Clear();
@@ -55,7 +65,39 @@ namespace WaterColorSort.Classes
         }
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        internal static Bitmap GetBitmap() => ProcessWork.GetImage().Clone(new(X, Y, W, H), PixelFormat.Format32bppArgb);
+        internal static Bitmap GetImageFromStream()
+        {
+            Stream stream = ProcessWork.GetStream($"shell screencap -p");
+            const int Capacity = 0x400;
+            List<byte> data = new(Capacity);
+            byte[] buf = new byte[Capacity];
+            bool isCR = false;
+
+            int read;
+            do
+            {
+                read = stream.Read(buf, 0, Capacity);
+
+                for (int i = 0; i < read; i++) //convert CRLF to LF 
+                {
+                    if (isCR && buf[i] == 0x0A)
+                    {
+                        isCR = false;
+                        data.RemoveAt(data.Count - 1);
+                        data.Add(buf[i]);
+                        continue;
+                    }
+                    isCR = buf[i] == 0x0D;
+                    data.Add(buf[i]);
+                }
+            }
+            while (read > 0);
+
+            return data.Count == 0 ? null : (new(new MemoryStream(data.ToArray())));
+        }
+
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        internal static Bitmap GetBitmap() => GetImageFromStream().Clone(new(X, Y, W, H), PixelFormat.Format32bppArgb);
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
         internal static List<Point> FindBitmapsEntry(Bitmap sourceBitmap, Bitmap serchingBitmap, int toleration)

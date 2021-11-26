@@ -1,10 +1,11 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace WaterColorSort.Classes
 {
-    internal struct UserColor : IComparable
+    internal readonly struct UserColor : IComparable
     {
         internal readonly Color color;
         internal readonly string name;
@@ -15,25 +16,27 @@ namespace WaterColorSort.Classes
             this.name = name;
         }
 
-        internal static System.Collections.Generic.List<string> Names = new();
-        private static readonly ConsoleColor[] consoleColors = new ConsoleColor[]
-        {
-            ConsoleColor.Blue,
-            ConsoleColor.DarkRed,
-            ConsoleColor.Cyan,
-            ConsoleColor.DarkCyan,
-            ConsoleColor.DarkGray,
-            ConsoleColor.Green,
-            ConsoleColor.Magenta,
-            ConsoleColor.DarkYellow,
-            ConsoleColor.White,
-            ConsoleColor.DarkMagenta,
-            ConsoleColor.Red,
-            ConsoleColor.Yellow,
-            ConsoleColor.Black
-        };
+        private static readonly Dictionary<string, ConsoleColor> consoleColors = new();
 
-        internal ConsoleColor GetNearestColor() => Names.Count == 0 || Names.IndexOf(name) == -1 ? ConsoleColor.Black : consoleColors[Names.IndexOf(name)];
+        internal static void InitDict()
+        {
+            consoleColors.Clear();
+            consoleColors.Add(BitmapWork.named_resources[0].name, ConsoleColor.Blue);
+            consoleColors.Add(BitmapWork.named_resources[1].name, ConsoleColor.DarkRed);
+            consoleColors.Add(BitmapWork.named_resources[2].name, ConsoleColor.Cyan);
+            consoleColors.Add(BitmapWork.named_resources[3].name, ConsoleColor.DarkCyan);
+            consoleColors.Add(BitmapWork.named_resources[4].name, ConsoleColor.Black);
+            consoleColors.Add(BitmapWork.named_resources[5].name, ConsoleColor.DarkGray);
+            consoleColors.Add(BitmapWork.named_resources[6].name, ConsoleColor.Green);
+            consoleColors.Add(BitmapWork.named_resources[7].name, ConsoleColor.Magenta);
+            consoleColors.Add(BitmapWork.named_resources[8].name, ConsoleColor.DarkYellow);
+            consoleColors.Add(BitmapWork.named_resources[9].name, ConsoleColor.White);
+            consoleColors.Add(BitmapWork.named_resources[10].name, ConsoleColor.DarkMagenta);
+            consoleColors.Add(BitmapWork.named_resources[11].name, ConsoleColor.Red);
+            consoleColors.Add(BitmapWork.named_resources[12].name, ConsoleColor.Yellow);
+        }
+
+        internal ConsoleColor GetNearestColor() => consoleColors.TryGetValue(name ?? "", out ConsoleColor consoleColor) ? consoleColor : ConsoleColor.Black;
 
         public static implicit operator Color(UserColor color) => color.color;
 
@@ -47,9 +50,6 @@ namespace WaterColorSort.Classes
 
         public override int GetHashCode() => HashCode.Combine(color, name);
 
-        int IComparable.CompareTo(object obj)
-        {
-            return name.CompareTo(((UserColor)obj).name);
-        }
+        int IComparable.CompareTo(object obj) => name.CompareTo(((UserColor)obj).name);
     }
 }

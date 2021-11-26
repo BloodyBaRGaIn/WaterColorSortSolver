@@ -12,7 +12,7 @@ namespace WaterColorSort.Classes
         private const string AppActivity = "org.cocos2dx.javascript.AppActivity";
         private const double DefaultSleep = 0.15;
         private static readonly string CURR_DIR = Directory.GetCurrentDirectory();
-        private static readonly string ADB = $"{CURR_DIR}\\scrcpy\\adb.exe";
+        private static readonly string ADB = $"{CURR_DIR}\\adb\\adb.exe";
         private static readonly string StartCommand = $"shell am start {AppName}/{AppActivity}";
         private static string MakeClickCommand(int x, int y, double sleep = DefaultSleep) => $"input tap {x} {y} & sleep {sleep.ToString().Replace(',', '.')}";
 
@@ -27,38 +27,6 @@ namespace WaterColorSort.Classes
             Task delay = Task.Delay(GetStreamData($"shell pidof {AppName}").Length == 0 ? start_delay : 1000);
             RunCommand(StartCommand).Wait();
             return delay;
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        internal static System.Drawing.Bitmap GetImage()
-        {
-            Stream stream = GetStream($"shell screencap -p");
-            const int Capacity = 0x400;
-            List<byte> data = new(Capacity);
-            byte[] buf = new byte[Capacity];
-            bool isCR = false;
-
-            int read;
-            do
-            {
-                read = stream.Read(buf, 0, Capacity);
-
-                for (int i = 0; i < read; i++) //convert CRLF to LF 
-                {
-                    if (isCR && buf[i] == 0x0A)
-                    {
-                        isCR = false;
-                        data.RemoveAt(data.Count - 1);
-                        data.Add(buf[i]);
-                        continue;
-                    }
-                    isCR = buf[i] == 0x0D;
-                    data.Add(buf[i]);
-                }
-            }
-            while (read > 0);
-
-            return data.Count == 0 ? null : (new(new MemoryStream(data.ToArray())));
         }
 
         internal static async Task Click(int x, int y, double sleep = DefaultSleep) => await RunCommand($"shell {MakeClickCommand(x, y, sleep)}");
@@ -90,7 +58,7 @@ namespace WaterColorSort.Classes
             return info;
         }
 
-        private static Stream GetStream(string command) => Process.Start(GetInfo(command)).StandardOutput.BaseStream;
+        internal static Stream GetStream(string command) => Process.Start(GetInfo(command)).StandardOutput.BaseStream;
 
         private static string GetStreamData(string command)
         {
