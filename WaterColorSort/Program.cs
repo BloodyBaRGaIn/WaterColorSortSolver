@@ -25,6 +25,7 @@ namespace WaterColorSort
             List<Move> final = new();
             Rectangle bounds = new(Point.Empty, new Size(BitmapWork.W, BitmapWork.H));
             UserColor.InitDict();
+            ProcessWork.KillADB();
             #endregion
             while (true)
             {
@@ -72,8 +73,6 @@ namespace WaterColorSort
                 if (!wrong_size)
                 {
                     Console.WriteLine("\nINPUT\n");
-                    //Bottle.PrintBottles(Bottles);
-                    //Console.WriteLine();
                     Bottle.PrintColoredBottles(Bottles, del);
                     foreach (Move move in Bottle.GetMoves(Bottles))
                     {
@@ -165,8 +164,6 @@ namespace WaterColorSort
                 Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
 
                 Console.WriteLine("\nRESULT\n");
-                //Bottle.PrintBottles(Bottles);
-                //Console.WriteLine();
                 Bottle.PrintColoredBottles(Bottles, del);
                 del.Clear();
 

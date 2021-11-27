@@ -18,6 +18,15 @@ namespace WaterColorSort.Classes
 
         internal static bool CheckDevice() => System.Text.RegularExpressions.Regex.Matches(GetStreamData($"devices"), @"\d+\t\w+").Count == 1;
 
+        internal static void KillADB()
+        {
+            foreach (Process p in Process.GetProcessesByName("adb.exe"))
+            {
+                p.Kill();
+                p.Dispose();
+            }
+        }
+
         internal static Task StartApp(int start_delay = 15000)
         {
             while (!CheckDevice())
