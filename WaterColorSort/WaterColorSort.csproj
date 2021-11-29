@@ -98,12 +98,10 @@
     <EmbeddedResource Update="InterfaceResources\Interface.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Interface.Designer.cs</LastGenOutput>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Palette.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Palette.Designer.cs</LastGenOutput>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 

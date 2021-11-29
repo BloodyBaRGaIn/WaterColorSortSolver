@@ -32,7 +32,7 @@ namespace WaterColorSort.Classes
             }
         }
 
-        internal void PrintColored()
+        private void PrintColored()
         {
             System.Console.Write($"{from} \u2192 {to} (");
             System.Console.ForegroundColor = color.GetNearestColor();

@@ -55,53 +55,15 @@ namespace WaterColorSort
                 bottle_pixel_list.RemoveAll(p => p.Count <= 10);
                 Bottle.Solution_Found = false;
             fill:
-                if (!Bottle.FillBottles(Bottles, BitmapWork.empty, bottle_pixel_list))
+                if (!Bottle.FillBottles(Bottles, bottle_pixel_list))
                 {
                     continue;
                 }
-                bool wrong_size = false;
-                IEnumerable<UserColor> bottle_content = Bottles.SelectMany(b => b);
-                foreach (UserColor color in bottle_content)
-                {
-                    if (bottle_content.Count(b => b.Equals(color)) != Bottle.CURR_SIZE)
-                    {
-                        wrong_size = true;
-                        break;
-                    }
-                }
-                Tree temp;
-                if (!wrong_size)
+                if (Bottle.FilledCorrectly(Bottles))
                 {
                     Console.WriteLine("\nINPUT\n");
                     Bottle.PrintColoredBottles(Bottles, del);
-                    foreach (Move move in Bottle.GetMoves(Bottles))
-                    {
-                        temp = new();
-                        using (Task SolveTask = Task.Run(() => Bottle.MakeMove(Bottles, temp, move)))
-                        {
-                            if (SolveTask.Wait(2000) && Bottle.Solution_Found)
-                            {
-                                temp.ClearTree();
-                                Bottle.Solution_Found = false;
-                                if (temp.Count > 0)
-                                {
-                                    trees.Add(temp);
-                                }
-                            }
-                            try
-                            {
-                                SolveTask.Dispose();
-                            }
-                            catch
-                            {
-                                Bottle.Solution_Found = true;
-                                SolveTask.Wait();
-                                SolveTask.Dispose();
-                                Bottle.Solution_Found = false;
-                            }
-                        }
-                        GC.Collect();
-                    }
+                    Bottle.Solve(Bottles, trees);
                 }
 
                 if (trees.Count == 0)
@@ -118,36 +80,13 @@ namespace WaterColorSort
                 }
 
                 Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
-                Bottle.Solution_Found = true;
-                List<Move> f_list = new();
-                foreach (Tree tree in trees.Where(t => t.Root().TotalCount() > 0).OrderBy(t => t.Root().TotalCount()))
-                {
-                    using (Task SolveTask = Task.Run(() =>
-                    {
-                        while (!tree.Any(t => t.Value.Win))
-                        {
-                            tree.FindSolution();
-                        }
-                    }))
-                    {
-                        if (SolveTask.Wait(2000))
-                        {
-                            f_list.Clear();
-                            tree.FillMoves(f_list);
-                            if (f_list.Count > 0 && (f_list.Count < final.Count || final.Count == 0))
-                            {
-                                final.Clear();
-                                final.AddRange(f_list);
-                            }
-                        }
-                    }
-                    GC.Collect();
-                }
 
-                if (final.Count == 0)
+                if (!Tree.TraceSolution(trees, final))
                 {
                     continue;
                 }
+
+                Console.WriteLine("MINIMAL SOLUTION TRACED");
 
                 Move.ClearMoves(final);
 

@@ -42,12 +42,12 @@ namespace WaterColorSort.Classes
             using Bitmap image = GetBitmap();
             image.Save("test.jpg", ImageFormat.Jpeg);
 
-            List<(Bitmap file, string name, Bitmap img_cpy, List<PixelData> result)> input_collection = named_resources
-                .Select(s => (file: s.Item1, name: s.Item2, img_cpy: new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat), result: new List<PixelData>())).ToList();
+            List<(Bitmap img, string name, Bitmap img_cpy, List<PixelData> result)> input_collection = named_resources
+                .Select(s => (s.img, s.name, img_cpy: new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat), result: new List<PixelData>())).ToList();
             ParallelLoopResult loopres = Parallel.ForEach(input_collection, param =>
             {
                 using Bitmap img_cpy = param.img_cpy;
-                using Bitmap tofind = new(param.file);
+                using Bitmap tofind = new(param.img);
 
                 if (param.name == nameof(empty))
                 {
@@ -65,7 +65,7 @@ namespace WaterColorSort.Classes
         }
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        internal static Bitmap GetImageFromStream()
+        private static Bitmap GetImageFromStream()
         {
             Stream stream = ProcessWork.GetStream($"shell screencap -p");
             const int Capacity = 0x400;
@@ -93,7 +93,7 @@ namespace WaterColorSort.Classes
             }
             while (read > 0);
 
-            return data.Count == 0 ? null : (new(new MemoryStream(data.ToArray())));
+            return data.Count == 0 ? null : new(new MemoryStream(data.ToArray()));
         }
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]

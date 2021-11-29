@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
 {
@@ -32,7 +33,7 @@ namespace WaterColorSort.Classes
         private static readonly Print Num = new((b, _) => Console.Write(b.ToString().PadLeft(3).PadRight(5)));
 
 
-        internal Bottle(params Color[] colors)
+        private Bottle(params Color[] colors)
         {
             foreach (UserColor c in colors)
             {
@@ -40,7 +41,7 @@ namespace WaterColorSort.Classes
             }
         }
 
-        internal Bottle(in UserColor[] colors)
+        private Bottle(in UserColor[] colors)
         {
             foreach (UserColor c in colors)
             {
@@ -50,7 +51,7 @@ namespace WaterColorSort.Classes
 
         internal bool IsCompleted => Count == 0 || (this.Distinct().Count() == 1 && Count == CURR_SIZE);
 
-        internal static bool TransferColors(in Bottle from, in Bottle to)
+        private static bool TransferColors(in Bottle from, in Bottle to)
         {
             if (!IsPossibleTransfer(from, to))
             {
@@ -76,31 +77,29 @@ namespace WaterColorSort.Classes
             return true;
         }
 
-        internal static bool IsPossibleTransfer(in List<Bottle> bottles, in int from, in int to) => IsPossibleTransfer(bottles[from], bottles[to]);
+        private static bool IsPossibleTransfer(in List<Bottle> bottles, in int from, in int to) => IsPossibleTransfer(bottles[from], bottles[to]);
 
-        internal static bool IsPossibleTransfer(in Bottle from, in Bottle to) => (from.Distinct().Count() > 1 || to.Count != 0)
-                                                                                  && !from.Equals(to)
-                                                                                  && from.Count > 0
-                                                                                  && to.Count < CURR_SIZE
-                                                                                  && (to.Count == 0 || (from.Peek() == to.Peek()));
+        private static bool IsPossibleTransfer(in Bottle from, in Bottle to) => (from.Distinct().Count() > 1 || to.Count != 0)
+                                                                                 && !from.Equals(to)
+                                                                                 && from.Count > 0
+                                                                                 && to.Count < CURR_SIZE
+                                                                                 && (to.Count == 0 || (from.Peek() == to.Peek()));
 
-        internal static IEnumerable<Move> GetMoves(List<Bottle> bottles)
+        private static IEnumerable<Move> GetMoves(List<Bottle> bottles) => NonOpt(bottles).OrderByDescending(b => bottles[b.to].Count)
+                                                                                          .ThenBy(b => bottles[b.to].Distinct().Count());
+
+        private static IEnumerable<Move> NonOpt(List<Bottle> bottles)
         {
-            static IEnumerable<Move> NonOpt(List<Bottle> bottles)
+            for (int i = 0; i < bottles.Count; i++)
             {
-                for (int i = 0; i < bottles.Count; i++)
+                for (int j = 0; j < bottles.Count; j++)
                 {
-                    for (int j = 0; j < bottles.Count; j++)
+                    if (IsPossibleTransfer(bottles, i, j))
                     {
-                        if (IsPossibleTransfer(bottles, i, j))
-                        {
-                            yield return new Move(i, j, bottles[i].Peek());
-                        }
+                        yield return new Move(i, j, bottles[i].Peek());
                     }
                 }
             }
-            return NonOpt(bottles).OrderByDescending(b => bottles[b.to].Count)
-                                  .ThenBy(b => bottles[b.to].Distinct().Count());
         }
 
         internal static int ApplyMoves(in List<Bottle> bottles, in List<Move> moves)
@@ -116,7 +115,7 @@ namespace WaterColorSort.Classes
             return moves.Count;
         }
 
-        internal static void MakeMove(in List<Bottle> bottles, in Tree prev, in Move move)
+        private static void MakeMove(in List<Bottle> bottles, in Tree prev, in Move move)
         {
             if (Solution_Found || prev.iteration >= (CURR_SIZE + 1) * (bottles.Count + 1))
             {
@@ -162,22 +161,22 @@ namespace WaterColorSort.Classes
             }
         }
 
-        internal static bool FillBottles(in List<Bottle> bottles, Color empty, in List<List<PixelData>> bottle_pixel_list)
+        internal static bool FillBottles(in List<Bottle> bottles, in List<List<PixelData>> bottle_pixel_list)
         {
             bottles.Clear();
             foreach (List<PixelData> b in bottle_pixel_list)
             {
-                if (!b.Any(d => d.c != empty))
+                if (!b.Any(d => d.c != BitmapWork.empty))
                 {
                     bottles.Add(new());
                     continue;
                 }
                 int min_y = b.Min(d => d.y);
-                int max_y = b.Where(d => d.c != empty).Max(d => d.y);
-                if (Math.Abs(max_y - b.Where(d => d.c == empty).Max(d => d.y)) > 20)
+                int max_y = b.Where(d => d.c != BitmapWork.empty).Max(d => d.y);
+                if (Math.Abs(max_y - b.Where(d => d.c == BitmapWork.empty).Max(d => d.y)) > 20)
                 {
-                    min_y = b.Where(d => d.c == empty).Max(d => d.y);
-                    b.RemoveAll(d => Math.Abs(min_y - d.y) > 20 && d.c == empty);
+                    min_y = b.Where(d => d.c == BitmapWork.empty).Max(d => d.y);
+                    b.RemoveAll(d => Math.Abs(min_y - d.y) > 20 && d.c == BitmapWork.empty);
                 }
                 int segment_len = (int)(((max_y - min_y) / (CURR_SIZE + 0.5f)) + 1);
                 int segment_len_4 = (int)(((max_y - min_y) / 4.5f) + 1);
@@ -192,7 +191,7 @@ namespace WaterColorSort.Classes
                     if (groups.Any() && groups.First().Count() > PixelGroupMinSize)
                     {
                         UserColor color = groups.First().Key;
-                        if (color == empty)
+                        if (color == BitmapWork.empty)
                         {
                             return false;
                         }
@@ -202,6 +201,52 @@ namespace WaterColorSort.Classes
                 bottles.Add(new_b);
             }
             return true;
+        }
+
+        internal static bool FilledCorrectly(in IEnumerable<Bottle> Bottles)
+        {
+            IEnumerable<UserColor> bottle_content = Bottles.SelectMany(b => b);
+            foreach (UserColor color in bottle_content.Distinct())
+            {
+                if (bottle_content.Count(b => b.Equals(color)) != CURR_SIZE)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        internal static void Solve(List<Bottle> Bottles, in List<Tree> trees)
+        {
+            Tree temp;
+            foreach (Move move in GetMoves(Bottles))
+            {
+                temp = new();
+                using (Task SolveTask = Task.Run(() => MakeMove(Bottles, temp, move)))
+                {
+                    if (SolveTask.Wait(2000) && Solution_Found)
+                    {
+                        temp.ClearTree();
+                        Solution_Found = false;
+                        if (temp.Count > 0)
+                        {
+                            trees.Add(temp);
+                        }
+                    }
+                    try
+                    {
+                        SolveTask.Dispose();
+                    }
+                    catch
+                    {
+                        Solution_Found = true;
+                        SolveTask.Wait();
+                        SolveTask.Dispose();
+                        Solution_Found = false;
+                    }
+                }
+                GC.Collect();
+            }
         }
 
         private static void UniversalPrint(in int idx, in List<int> del, in Print print, params object[] param)

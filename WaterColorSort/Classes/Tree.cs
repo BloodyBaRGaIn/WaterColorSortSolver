@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
 {
@@ -11,7 +12,7 @@ namespace WaterColorSort.Classes
         internal Tree Parent;
         internal int iteration = 0;
 
-        internal Tree(Move _value)
+        private Tree(Move _value)
         {
             Value = _value;
         }
@@ -24,7 +25,7 @@ namespace WaterColorSort.Classes
 
         internal Tree() : this(default) { }
 
-        internal Tree Root()
+        private Tree Root()
         {
             Tree root = this;
             while (root.Parent?.Parent != null)
@@ -34,7 +35,7 @@ namespace WaterColorSort.Classes
             return root;
         }
 
-        internal int TotalCount()
+        private int TotalCount()
         {
             int count = Count;
             foreach (Tree tree in this)
@@ -42,6 +43,37 @@ namespace WaterColorSort.Classes
                 count += tree.TotalCount();
             }
             return count;
+        }
+
+        internal static bool TraceSolution(List<Tree> trees, List<Move> final)
+        {
+            Bottle.Solution_Found = true;
+            List<Move> f_list = new();
+            final.Clear();
+            foreach (Tree tree in trees.Where(t => t.Root().TotalCount() > 0).OrderBy(t => t.Root().TotalCount()))
+            {
+                using (Task SolveTask = Task.Run(() =>
+                {
+                    while (!tree.Any(t => t.Value.Win))
+                    {
+                        tree.FindSolution();
+                    }
+                }))
+                {
+                    if (SolveTask.Wait(2000))
+                    {
+                        f_list.Clear();
+                        tree.FillMoves(f_list);
+                        if (f_list.Count > 0 && (f_list.Count < final.Count || final.Count == 0))
+                        {
+                            final.Clear();
+                            final.AddRange(f_list);
+                        }
+                    }
+                }
+                GC.Collect();
+            }
+            return final.Count > 0;
         }
 
         public new void Clear()
@@ -65,7 +97,7 @@ namespace WaterColorSort.Classes
             }
         }
 
-        internal void FindSolution()
+        private void FindSolution()
         {
             foreach (Tree tree in this)
             {
@@ -77,7 +109,7 @@ namespace WaterColorSort.Classes
             }
         }
 
-        internal void FillMoves(List<Move> moves)
+        private void FillMoves(List<Move> moves)
         {
             if (Value.Win)
             {
