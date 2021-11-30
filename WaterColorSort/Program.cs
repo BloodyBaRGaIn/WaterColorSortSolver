@@ -24,7 +24,6 @@ namespace WaterColorSort
             List<Tree> trees = new();
             List<Move> final = new();
             Rectangle bounds = new(Point.Empty, new Size(BitmapWork.W, BitmapWork.H));
-            UserColor.InitDict();
             ProcessWork.KillADB();
             #endregion
             while (true)
@@ -44,52 +43,35 @@ namespace WaterColorSort
                 #endregion
 
                 pixelDatas.AddRange(BitmapWork.GetPixels().Distinct(new PixelComparer()).OrderBy(d => d.y).ThenBy(d => d.x));
+                if (pixelDatas.Count == 0)
+                {
+                    continue;
+                }
                 Console.WriteLine("GOT PIXELS");
+
                 if (!PixelData.FillYLayers(y_layers, pixelDatas)
                     || !PixelData.MakeDataSets(y_layers, pixelDatas, bottle_pixel_list, out List<int> del))
                 {
                     continue;
                 }
                 Console.WriteLine("DATA STRUCTURED");
+
                 BitmapWork.SaveColorImage(bottle_pixel_list, bounds, new Size(1, 1) * PixelData.PixelSize);
                 bottle_pixel_list.RemoveAll(p => p.Count <= 10);
                 Bottle.Solution_Found = false;
-            fill:
-                if (!Bottle.FillBottles(Bottles, bottle_pixel_list))
+                if (!FillAndSolve(Bottles, bottle_pixel_list, trees, del))
                 {
                     continue;
                 }
-                if (Bottle.FilledCorrectly(Bottles))
-                {
-                    Console.WriteLine("\nINPUT\n");
-                    Bottle.PrintColoredBottles(Bottles, del);
-                    Bottle.Solve(Bottles, trees);
-                }
-
-                if (trees.Count == 0)
-                {
-                    if (Bottle.CURR_SIZE < Bottle.MAX_SIZE)
-                    {
-                        Bottle.CURR_SIZE++;
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                    goto fill;
-                }
-
                 Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
 
                 if (!Tree.TraceSolution(trees, final))
                 {
                     continue;
                 }
-
                 Console.WriteLine("MINIMAL SOLUTION TRACED");
 
                 Move.ClearMoves(final);
-
                 Console.WriteLine($"\nTOTAL MOVES COUNT: {final.Count}");
 
                 int done = Bottle.ApplyMoves(Bottles, final);
@@ -99,7 +81,6 @@ namespace WaterColorSort
                     final = final.Take(done).ToList();
                     failed = true;
                 }
-
                 Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
 
                 Console.WriteLine("\nRESULT\n");
@@ -107,7 +88,10 @@ namespace WaterColorSort
                 del.Clear();
 
                 Console.WriteLine("\nMOVES\n");
-                Move.PerformMoves(bottle_pixel_list, final, Offset);
+                if (!Move.PerformMoves(bottle_pixel_list, final, Offset))
+                {
+                    continue;
+                }
                 if (!Bottles.All(b => b.IsCompleted) || failed)
                 {
                     Console.WriteLine("\nFAILED\n");
@@ -115,11 +99,42 @@ namespace WaterColorSort
                 }
                 Console.WriteLine($"\n{final.Count} MOVES PERFORMED\n");
                 Thread.Sleep(1000);
-
                 Move.GotoNext();
-
-                continue;
             }
+        }
+
+        private static bool FillAndSolve(List<Bottle> Bottles, List<List<PixelData>> bottle_pixel_list, List<Tree> trees, List<int> del)
+        {
+            while (true)
+            {
+                if (!Bottle.FillBottles(Bottles, bottle_pixel_list))
+                {
+                    return false;
+                }
+                if (Bottle.FilledCorrectly(Bottles))
+                {
+                    Console.WriteLine("\nINPUT\n");
+                    Bottle.PrintColoredBottles(Bottles, del);
+                    Bottle.Solve(Bottles, trees);
+                }
+                if (trees.Count == 0)
+                {
+                    if (Bottle.CURR_SIZE < Bottle.MAX_SIZE)
+                    {
+                        Bottle.CURR_SIZE++;
+                        continue;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return true;
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace WaterColorSort.Classes
 {
-    internal struct PixelData
+    internal readonly struct PixelData
     {
         internal const int PixelSize = 5;
         internal readonly int x, y;

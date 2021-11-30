@@ -41,7 +41,7 @@ namespace WaterColorSort.Classes
             System.Console.WriteLine(')');
         }
 
-        internal static void PerformMoves(List<List<PixelData>> bottle_pixel_list, IEnumerable<Move> final, int offset)
+        internal static bool PerformMoves(List<List<PixelData>> bottle_pixel_list, IEnumerable<Move> final, int offset)
         {
             List<(int x, int y)> coords = bottle_pixel_list.Select(p => ((int)p.Average(p => p.x) + BitmapWork.X, (int)p.Average(p => p.y) + offset + BitmapWork.Y)).ToList();
             foreach (Move move in final)
@@ -49,6 +49,7 @@ namespace WaterColorSort.Classes
                 ProcessWork.Click(new List<((int, int), double)>(3) { (coords[move.from], 0.15), (coords[move.to], 0.15), (coords[move.to], 0) }).Wait();
                 move.PrintColored();
             }
+            return true;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]

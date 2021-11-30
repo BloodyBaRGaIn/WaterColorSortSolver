@@ -24,7 +24,8 @@ namespace WaterColorSort.Classes
             int idx = (int)param[1] + bot.Count - CURR_SIZE - 1;
             Console.Write('\u2502');
             Console.ForegroundColor = (idx >= 0 && idx < bot.Count ? bot.ElementAt(idx) : default).GetNearestColor();
-            Console.Write("\u2588\u2588");
+            Console.Write('\u2588');
+            Console.Write('\u2588');
             Console.ResetColor();
             Console.Write('\u2502');
             Console.Write(' ');
@@ -224,7 +225,7 @@ namespace WaterColorSort.Classes
                 temp = new();
                 using (Task SolveTask = Task.Run(() => MakeMove(Bottles, temp, move)))
                 {
-                    if (SolveTask.Wait(2000) && Solution_Found)
+                    if (SolveTask.Wait(5000) && Solution_Found)
                     {
                         temp.ClearTree();
                         Solution_Found = false;

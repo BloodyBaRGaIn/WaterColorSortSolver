@@ -19,21 +19,21 @@ namespace WaterColorSort.Classes
         internal const int H = 800;
         internal static Color empty;
 
-        internal static (Bitmap img, string name)[] named_resources = new (Bitmap, string)[]
+        internal static List<(Bitmap img, string name, ConsoleColor color)> named_resources = new(13)
         {
-            (Resources.Palette.blue,        nameof(Resources.Palette.blue)),
-            (Resources.Palette.brown,       nameof(Resources.Palette.brown)),
-            (Resources.Palette.cyan,        nameof(Resources.Palette.cyan)),
-            (Resources.Palette.dark_cyan,   nameof(Resources.Palette.dark_cyan)),
-            (Resources.Palette.empty,       nameof(Resources.Palette.empty)),
-            (Resources.Palette.gray,        nameof(Resources.Palette.gray)),
-            (Resources.Palette.green,       nameof(Resources.Palette.green)),
-            (Resources.Palette.magenta,     nameof(Resources.Palette.magenta)),
-            (Resources.Palette.orange,      nameof(Resources.Palette.orange)),
-            (Resources.Palette.pink,        nameof(Resources.Palette.pink)),
-            (Resources.Palette.purple,      nameof(Resources.Palette.purple)),
-            (Resources.Palette.red,         nameof(Resources.Palette.red)),
-            (Resources.Palette.yellow,      nameof(Resources.Palette.yellow)),
+            (Resources.Palette.blue,        nameof(Resources.Palette.blue),         ConsoleColor.Blue),
+            (Resources.Palette.brown,       nameof(Resources.Palette.brown),        ConsoleColor.DarkRed),
+            (Resources.Palette.cyan,        nameof(Resources.Palette.cyan),         ConsoleColor.Cyan),
+            (Resources.Palette.dark_cyan,   nameof(Resources.Palette.dark_cyan),    ConsoleColor.DarkCyan),
+            (Resources.Palette.empty,       nameof(Resources.Palette.empty),        ConsoleColor.Black),
+            (Resources.Palette.gray,        nameof(Resources.Palette.gray),         ConsoleColor.DarkGray),
+            (Resources.Palette.green,       nameof(Resources.Palette.green),        ConsoleColor.Green),
+            (Resources.Palette.magenta,     nameof(Resources.Palette.magenta),      ConsoleColor.Magenta),
+            (Resources.Palette.orange,      nameof(Resources.Palette.orange),       ConsoleColor.DarkYellow),
+            (Resources.Palette.pink,        nameof(Resources.Palette.pink),         ConsoleColor.White),
+            (Resources.Palette.purple,      nameof(Resources.Palette.purple),       ConsoleColor.DarkMagenta),
+            (Resources.Palette.red,         nameof(Resources.Palette.red),          ConsoleColor.Red),
+            (Resources.Palette.yellow,      nameof(Resources.Palette.yellow),       ConsoleColor.Yellow),
         };
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]

@@ -16,7 +16,10 @@ namespace WaterColorSort.Classes
         private static readonly string StartCommand = $"shell am start {AppName}/{AppActivity}";
         private static string MakeClickCommand(int x, int y, double sleep = DefaultSleep) => $"input tap {x} {y} & sleep {sleep.ToString().Replace(',', '.')}";
 
-        internal static bool CheckDevice() => System.Text.RegularExpressions.Regex.Matches(GetStreamData($"devices"), @"\d+\t\w+").Count == 1;
+        internal static int CheckDevice()
+        {
+            return System.Text.RegularExpressions.Regex.Matches(GetStreamData($"devices"), @"\d+\t\w+").Count;
+        }
 
         internal static void KillADB()
         {
@@ -29,10 +32,21 @@ namespace WaterColorSort.Classes
 
         internal static Task StartApp(int start_delay = 15000)
         {
-            while (!CheckDevice())
+            int num;
+            do
             {
-                Task.Delay(100).Wait();
+                num = CheckDevice();
+                if (num == 1)
+                {
+                    break;
+                }
+                else
+                {
+                    System.Console.WriteLine(num == 0 ? "No device connected" : "Too many devices connected");
+                    System.Environment.Exit(1);
+                }
             }
+            while (num != 1);
             Task delay = Task.Delay(GetStreamData($"shell pidof {AppName}").Length == 0 ? start_delay : 1000);
             RunCommand(StartCommand).Wait();
             return delay;
@@ -54,7 +68,18 @@ namespace WaterColorSort.Classes
             await RunCommand($"{command[..^2]}\"");
         }
 
-        private static async Task RunCommand(string command) => await Process.Start(GetInfo(command)).WaitForExitAsync();
+        private static Task RunCommand(string command)
+        {
+            Process process = Process.Start(GetInfo(command));
+            string error = process.StandardError.ReadToEnd();
+            if (error.Contains("Error") || error.Contains("no devices/emulators found"))
+            {
+                System.Console.WriteLine("Failed to run the command");
+                System.Console.WriteLine(error);
+                System.Environment.Exit(1);
+            }
+            return process.WaitForExitAsync();
+        }
 
         private static ProcessStartInfo GetInfo(string command, bool redirect = true)
         {
@@ -62,6 +87,7 @@ namespace WaterColorSort.Classes
             if (redirect)
             {
                 info.RedirectStandardOutput = true;
+                info.RedirectStandardError = true;
                 info.UseShellExecute = false;
             }
             return info;

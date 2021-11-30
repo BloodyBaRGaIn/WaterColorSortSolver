@@ -1,6 +1,6 @@
 ﻿
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Drawing;
 
 namespace WaterColorSort.Classes
@@ -16,27 +16,11 @@ namespace WaterColorSort.Classes
             this.name = name;
         }
 
-        private static readonly Dictionary<string, ConsoleColor> consoleColors = new();
-
-        internal static void InitDict()
+        internal ConsoleColor GetNearestColor()
         {
-            consoleColors.Clear();
-            consoleColors.Add(BitmapWork.named_resources[0].name, ConsoleColor.Blue);
-            consoleColors.Add(BitmapWork.named_resources[1].name, ConsoleColor.DarkRed);
-            consoleColors.Add(BitmapWork.named_resources[2].name, ConsoleColor.Cyan);
-            consoleColors.Add(BitmapWork.named_resources[3].name, ConsoleColor.DarkCyan);
-            consoleColors.Add(BitmapWork.named_resources[4].name, ConsoleColor.Black);
-            consoleColors.Add(BitmapWork.named_resources[5].name, ConsoleColor.DarkGray);
-            consoleColors.Add(BitmapWork.named_resources[6].name, ConsoleColor.Green);
-            consoleColors.Add(BitmapWork.named_resources[7].name, ConsoleColor.Magenta);
-            consoleColors.Add(BitmapWork.named_resources[8].name, ConsoleColor.DarkYellow);
-            consoleColors.Add(BitmapWork.named_resources[9].name, ConsoleColor.White);
-            consoleColors.Add(BitmapWork.named_resources[10].name, ConsoleColor.DarkMagenta);
-            consoleColors.Add(BitmapWork.named_resources[11].name, ConsoleColor.Red);
-            consoleColors.Add(BitmapWork.named_resources[12].name, ConsoleColor.Yellow);
+            string name = this.name; // needed for anonymous lambda expression error bypass
+            return BitmapWork.named_resources.FirstOrDefault(r => r.name == name).color;
         }
-
-        internal ConsoleColor GetNearestColor() => consoleColors.TryGetValue(name ?? "", out ConsoleColor consoleColor) ? consoleColor : ConsoleColor.Black;
 
         public static implicit operator Color(UserColor color) => color.color;
 
