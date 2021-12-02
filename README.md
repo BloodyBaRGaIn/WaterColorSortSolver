@@ -32,5 +32,4 @@ Input data from the device:\
 Processed image:\
 ![level_find](https://user-images.githubusercontent.com/32248195/144431039-322e0bf9-8a98-475a-96f7-ca318e1a5a57.png)\
 Console output:\
-![image](https://user-images.githubusercontent.com/32248195/144431297-ae84efb7-c827-47b5-89cd-852592eb434c.png)
-
+![image](https://user-images.githubusercontent.com/32248195/144431496-04d796bf-9f60-422f-b1d5-c3bf9f09597f.png)
