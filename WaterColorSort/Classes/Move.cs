@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -34,20 +35,23 @@ namespace WaterColorSort.Classes
 
         private void PrintColored()
         {
-            System.Console.Write($"{from} \u2192 {to} (");
-            System.Console.ForegroundColor = color.GetNearestColor();
-            System.Console.Write('\u25A0');
-            System.Console.ResetColor();
-            System.Console.WriteLine(')');
+            Console.Write($"{from} \u2192 {to} (");
+            Console.ForegroundColor = color.GetNearestColor();
+            Console.Write('\u25A0');
+            Console.ResetColor();
+            Console.WriteLine(')');
         }
 
-        internal static bool PerformMoves(List<List<PixelData>> bottle_pixel_list, IEnumerable<Move> final, int offset)
+        internal static bool PerformMoves(List<List<PixelData>> bottle_pixel_list, List<Bottle> bottles, List<int> del, IEnumerable<Move> final, int offset)
         {
             List<(int x, int y)> coords = bottle_pixel_list.Select(p => ((int)p.Average(p => p.x) + BitmapWork.X, (int)p.Average(p => p.y) + offset + BitmapWork.Y)).ToList();
             foreach (Move move in final)
             {
-                ProcessWork.Click(new List<((int, int), double)>(3) { (coords[move.from], 0.15), (coords[move.to], 0.15), (coords[move.to], 0) }).Wait();
+                Console.Clear();
+                Bottle.PrintColoredBottles(bottles, del);
                 move.PrintColored();
+                Bottle.TransferColors(bottles, move);
+                _ = ProcessWork.Click(new List<((int, int), double)>(3) { (coords[move.from], 0.15), (coords[move.to], 0.15), (coords[move.to], 0) }).Wait(300);
             }
             return true;
         }
@@ -63,7 +67,7 @@ namespace WaterColorSort.Classes
                 ProcessWork.Click((int)Pts.Average(p => p.X) + BitmapWork.X, (int)Pts.Average(p => p.Y) + BitmapWork.Y, 0).Wait();
             }
             image.Dispose();
-            System.GC.Collect();
+            GC.Collect();
         }
 
         public override bool Equals(object obj) => obj is Move move

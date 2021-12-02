@@ -1,0 +1,4 @@
+﻿[*.{cs,vb}]
+
+# IDE0130: Пространство имен (namespace) не соответствует структуре папок.
+dotnet_style_namespace_match_folder = false

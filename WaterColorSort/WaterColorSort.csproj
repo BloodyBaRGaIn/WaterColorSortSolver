@@ -23,62 +23,9 @@
     <None Update="adb\AdbWinUsbApi.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="AutoItX3.Assembly.dll">
+    <None Update="WaterColorSort.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="level.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="level_2.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\adb.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\AdbWinApi.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\AdbWinUsbApi.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\avcodec-58.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\avformat-58.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\avutil-56.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\scrcpy-console.bat">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\scrcpy-noconsole.vbs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\scrcpy-server">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\scrcpy.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\SDL2.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\swresample-3.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="scrcpy\swscale-5.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <NativeLibs Remove="AutoItX3.Assembly.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <NativeLibs Remove="AutoItX3.PowerShell.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -106,19 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="C:\Users\User\.nuget\packages\autoitx.dotnet\3.3.14.5\build\AutoItX3.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="C:\Users\User\.nuget\packages\autoitx.dotnet\3.3.14.5\build\AutoItX3.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="C:\Users\User\.nuget\packages\autoitx.dotnet\3.3.14.5\build\AutoItX3_x64.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="C:\Users\User\.nuget\packages\autoitx.dotnet\3.3.14.5\build\AutoItX3.dll" />
+    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
 </Project>

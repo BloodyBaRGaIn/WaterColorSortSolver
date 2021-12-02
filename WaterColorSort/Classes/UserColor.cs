@@ -1,7 +1,7 @@
 ﻿
 using System;
-using System.Linq;
 using System.Drawing;
+using System.Linq;
 
 namespace WaterColorSort.Classes
 {
@@ -19,7 +19,7 @@ namespace WaterColorSort.Classes
         internal ConsoleColor GetNearestColor()
         {
             string name = this.name; // needed for anonymous lambda expression error bypass
-            return BitmapWork.named_resources.FirstOrDefault(r => r.name == name).color;
+            return BitmapWork.named_resources.FirstOrDefault(r => r.namedBitmap.name == name).color;
         }
 
         public static implicit operator Color(UserColor color) => color.color;

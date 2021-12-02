@@ -9,30 +9,15 @@ namespace WaterColorSort.Classes
 {
     internal sealed class Bottle : Stack<UserColor>
     {
+        private const int PixelGroupMinSize = 20;
+
         internal const int MAX_SIZE = 10;
         internal const int MIN_SIZE = 2;
         internal static int CURR_SIZE = 2;
 
-        private const int PixelGroupMinSize = 20;
         internal static bool Solution_Found = false;
 
         private delegate void Print(int idx, params object[] param);
-
-        private static readonly Print Body = new((b, param) =>
-        {
-            Bottle bot = (param[0] as List<Bottle>)[b];
-            int idx = (int)param[1] + bot.Count - CURR_SIZE - 1;
-            Console.Write('\u2502');
-            Console.ForegroundColor = (idx >= 0 && idx < bot.Count ? bot.ElementAt(idx) : default).GetNearestColor();
-            Console.Write('\u2588');
-            Console.Write('\u2588');
-            Console.ResetColor();
-            Console.Write('\u2502');
-            Console.Write(' ');
-        });
-        private static readonly Print Base = new((_, _) => Console.Write("\u2514\u2500\u2500\u2518 "));
-        private static readonly Print Num = new((b, _) => Console.Write(b.ToString().PadLeft(3).PadRight(5)));
-
 
         private Bottle(params Color[] colors)
         {
@@ -51,6 +36,25 @@ namespace WaterColorSort.Classes
         }
 
         internal bool IsCompleted => Count == 0 || (this.Distinct().Count() == 1 && Count == CURR_SIZE);
+
+        private static readonly Print Body = new((b, param) =>
+        {
+            Bottle bot = (param[0] as List<Bottle>)[b];
+            int idx = (int)param[1] + bot.Count - CURR_SIZE - 1;
+            Console.Write('\u2502');
+            Console.ForegroundColor = (idx >= 0 && idx < bot.Count ? bot.ElementAt(idx) : default).GetNearestColor();
+            Console.Write('\u2588');
+            Console.Write('\u2588');
+            Console.ResetColor();
+            Console.Write('\u2502');
+            Console.Write(' ');
+        });
+
+        private static readonly Print Base = new((_, _) => Console.Write("\u2514\u2500\u2500\u2518 "));
+        private static readonly Print Num = new((b, param) =>
+        {
+            Console.Write($"{((param[0] as List<Bottle>)[b].IsCompleted ? "#" : "")}{b}".PadLeft(3).PadRight(5));
+        });
 
         private static bool TransferColors(in Bottle from, in Bottle to)
         {
@@ -103,31 +107,14 @@ namespace WaterColorSort.Classes
             }
         }
 
-        internal static int ApplyMoves(in List<Bottle> bottles, in List<Move> moves)
-        {
-            for (int i = 0; i < moves.Count; i++)
-            {
-                Move move = moves[i];
-                if (!TransferColors(bottles[move.from], bottles[move.to]))
-                {
-                    return i;
-                }
-            }
-            return moves.Count;
-        }
-
         private static void MakeMove(in List<Bottle> bottles, in Tree prev, in Move move)
         {
             if (Solution_Found || prev.iteration >= (CURR_SIZE + 1) * (bottles.Count + 1))
             {
                 return;
             }
-            List<Bottle> new_bottles = new();
-            foreach (Bottle b in bottles)
-            {
-                new_bottles.Add(new(b.Reverse().ToArray()));
-            }
-            if (!TransferColors(new_bottles[move.from], new_bottles[move.to]))
+            List<Bottle> new_bottles = CopyBottles(bottles);
+            if (!TransferColors(new_bottles, move))
             {
                 return;
             }
@@ -154,15 +141,7 @@ namespace WaterColorSort.Classes
             }
         }
 
-        internal static void PrintBottles(in List<Bottle> Bottles)
-        {
-            for (int i = 0; i < Bottles.Count; i++)
-            {
-                Console.WriteLine($"{i} => {Bottles[i]}");
-            }
-        }
-
-        internal static bool FillBottles(in List<Bottle> bottles, in List<List<PixelData>> bottle_pixel_list)
+        private static bool FillBottles(in List<Bottle> bottles, in List<List<PixelData>> bottle_pixel_list)
         {
             bottles.Clear();
             foreach (List<PixelData> b in bottle_pixel_list)
@@ -204,7 +183,7 @@ namespace WaterColorSort.Classes
             return true;
         }
 
-        internal static bool FilledCorrectly(in IEnumerable<Bottle> Bottles)
+        private static bool FilledCorrectly(in IEnumerable<Bottle> Bottles)
         {
             IEnumerable<UserColor> bottle_content = Bottles.SelectMany(b => b);
             foreach (UserColor color in bottle_content.Distinct())
@@ -217,7 +196,7 @@ namespace WaterColorSort.Classes
             return true;
         }
 
-        internal static void Solve(List<Bottle> Bottles, in List<Tree> trees)
+        private static void Solve(List<Bottle> Bottles, in List<Tree> trees)
         {
             Tree temp;
             foreach (Move move in GetMoves(Bottles))
@@ -263,8 +242,69 @@ namespace WaterColorSort.Classes
             Console.WriteLine();
         }
 
+        internal static List<Bottle> CopyBottles(in List<Bottle> bottles) => bottles.Select(b => new Bottle(b.Reverse().ToArray())).ToList();
+
+        internal static bool TransferColors(List<Bottle> bottles, Move move) => TransferColors(bottles[move.from], bottles[move.to]);
+
+        internal static bool FillAndSolve(List<Bottle> Bottles, List<List<PixelData>> bottle_pixel_list, List<Tree> trees, List<int> del)
+        {
+            while (true)
+            {
+                if (!FillBottles(Bottles, bottle_pixel_list))
+                {
+                    return false;
+                }
+                if (FilledCorrectly(Bottles))
+                {
+                    Console.Clear();
+                    PrintColoredBottles(Bottles, del);
+                    Console.WriteLine("SOLVING...");
+                    Solve(Bottles, trees);
+                }
+                if (trees.Count == 0)
+                {
+                    if (CURR_SIZE < MAX_SIZE)
+                    {
+                        CURR_SIZE++;
+                        continue;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return true;
+        }
+
+        internal static int ApplyMoves(in List<Bottle> bottles, in List<Move> moves)
+        {
+            for (int i = 0; i < moves.Count; i++)
+            {
+                Move move = moves[i];
+                if (!TransferColors(bottles, move))
+                {
+                    return i;
+                }
+            }
+            return moves.Count;
+        }
+
+        internal static void PrintBottles(in List<Bottle> Bottles)
+        {
+            for (int i = 0; i < Bottles.Count; i++)
+            {
+                Console.WriteLine($"{i} => {Bottles[i]}");
+            }
+        }
+
         internal static void PrintColoredBottles(in List<Bottle> Bottles, in List<int> del)
         {
+            Console.WriteLine();
             if (del[^1] != Bottles.Count)
             {
                 del.Add(Bottles.Count);
@@ -276,7 +316,7 @@ namespace WaterColorSort.Classes
                     UniversalPrint(idx, del, Body, Bottles, i);
                 }
                 UniversalPrint(idx, del, Base);
-                UniversalPrint(idx, del, Num);
+                UniversalPrint(idx, del, Num, Bottles);
                 Console.WriteLine();
             }
         }

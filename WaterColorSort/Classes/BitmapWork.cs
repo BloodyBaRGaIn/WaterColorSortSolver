@@ -19,65 +19,35 @@ namespace WaterColorSort.Classes
         internal const int H = 800;
         internal static Color empty;
 
-        internal static List<(Bitmap img, string name, ConsoleColor color)> named_resources = new(13)
+        internal static List<(NamedBitmap namedBitmap, ConsoleColor color)> named_resources = new(13)
         {
-            (Resources.Palette.blue,        nameof(Resources.Palette.blue),         ConsoleColor.Blue),
-            (Resources.Palette.brown,       nameof(Resources.Palette.brown),        ConsoleColor.DarkRed),
-            (Resources.Palette.cyan,        nameof(Resources.Palette.cyan),         ConsoleColor.Cyan),
-            (Resources.Palette.dark_cyan,   nameof(Resources.Palette.dark_cyan),    ConsoleColor.DarkCyan),
-            (Resources.Palette.empty,       nameof(Resources.Palette.empty),        ConsoleColor.Black),
-            (Resources.Palette.gray,        nameof(Resources.Palette.gray),         ConsoleColor.DarkGray),
-            (Resources.Palette.green,       nameof(Resources.Palette.green),        ConsoleColor.Green),
-            (Resources.Palette.magenta,     nameof(Resources.Palette.magenta),      ConsoleColor.Magenta),
-            (Resources.Palette.orange,      nameof(Resources.Palette.orange),       ConsoleColor.DarkYellow),
-            (Resources.Palette.pink,        nameof(Resources.Palette.pink),         ConsoleColor.White),
-            (Resources.Palette.purple,      nameof(Resources.Palette.purple),       ConsoleColor.DarkMagenta),
-            (Resources.Palette.red,         nameof(Resources.Palette.red),          ConsoleColor.Red),
-            (Resources.Palette.yellow,      nameof(Resources.Palette.yellow),       ConsoleColor.Yellow),
+            (new(Resources.Palette.blue, nameof(Resources.Palette.blue)), ConsoleColor.Blue),
+            (new(Resources.Palette.brown, nameof(Resources.Palette.brown)), ConsoleColor.DarkRed),
+            (new(Resources.Palette.cyan, nameof(Resources.Palette.cyan)), ConsoleColor.Cyan),
+            (new(Resources.Palette.dark_cyan, nameof(Resources.Palette.dark_cyan)), ConsoleColor.DarkCyan),
+            (new(Resources.Palette.empty, nameof(Resources.Palette.empty)), ConsoleColor.Black),
+            (new(Resources.Palette.gray, nameof(Resources.Palette.gray)), ConsoleColor.DarkGray),
+            (new(Resources.Palette.green, nameof(Resources.Palette.green)), ConsoleColor.Green),
+            (new(Resources.Palette.magenta, nameof(Resources.Palette.magenta)), ConsoleColor.Magenta),
+            (new(Resources.Palette.orange, nameof(Resources.Palette.orange)), ConsoleColor.DarkYellow),
+            (new(Resources.Palette.pink, nameof(Resources.Palette.pink)), ConsoleColor.White),
+            (new(Resources.Palette.purple, nameof(Resources.Palette.purple)), ConsoleColor.DarkMagenta),
+            (new(Resources.Palette.red, nameof(Resources.Palette.red)), ConsoleColor.Red),
+            (new(Resources.Palette.yellow, nameof(Resources.Palette.yellow)), ConsoleColor.Yellow),
         };
-
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        internal static IEnumerable<PixelData> GetPixels()
-        {
-            using Bitmap image = GetBitmap();
-            image.Save("test.jpg", ImageFormat.Jpeg);
-
-            List<(Bitmap img, string name, Bitmap img_cpy, List<PixelData> result)> input_collection = named_resources
-                .Select(s => (s.img, s.name, img_cpy: new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat), result: new List<PixelData>())).ToList();
-            ParallelLoopResult loopres = Parallel.ForEach(input_collection, param =>
-            {
-                using Bitmap img_cpy = param.img_cpy;
-                using Bitmap tofind = new(param.img);
-
-                if (param.name == nameof(empty))
-                {
-                    empty = tofind.GetPixel(0, 0);
-                }
-                param.result.AddRange(FindBitmapsEntry(img_cpy, tofind, 30).Select(p => new PixelData(p.X, p.Y, new(tofind.GetPixel(0, 0), param.name))));
-                tofind.Dispose();
-                img_cpy.Dispose();
-            });
-            image.Dispose();
-            List<PixelData> result = input_collection.SelectMany(i => i.result).ToList();
-            input_collection.Clear();
-            GC.Collect();
-            return result;
-        }
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
         private static Bitmap GetImageFromStream()
         {
-            Stream stream = ProcessWork.GetStream($"shell screencap -p");
-            const int Capacity = 0x400;
+            StreamReader stream = ProcessWork.GetStream($"shell screencap -p");
+            const int Capacity = 1024;
             List<byte> data = new(Capacity);
             byte[] buf = new byte[Capacity];
             bool isCR = false;
-
             int read;
             do
             {
-                read = stream.Read(buf, 0, Capacity);
-
+                read = stream.BaseStream.Read(buf, 0, Capacity);
                 for (int i = 0; i < read; i++) //convert CRLF to LF 
                 {
                     if (isCR && buf[i] == 0x0A)
@@ -92,8 +62,23 @@ namespace WaterColorSort.Classes
                 }
             }
             while (read > 0);
-
             return data.Count == 0 ? null : new(new MemoryStream(data.ToArray()));
+        }
+
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        internal static IEnumerable<PixelData> GetPixels()
+        {
+            using Bitmap image = GetBitmap();
+            image.Save("test.jpg", ImageFormat.Jpeg);
+
+            List<PixelFindStruct> input_collection = named_resources
+                .Select(s => new PixelFindStruct(
+                    s.namedBitmap, new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat),
+                    new List<PixelData>())).ToList();
+            ParallelLoopResult loopres = Parallel.ForEach(input_collection, ForeachLoopAction);
+            image.Dispose();
+            GC.Collect();
+            return input_collection.SelectMany(i => i.result);
         }
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
@@ -214,5 +199,20 @@ namespace WaterColorSort.Classes
             }
             image.Save("level_find.png");
         }
+
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        private static readonly Action<PixelFindStruct> ForeachLoopAction = new(param =>
+        {
+            using Bitmap img_cpy = param.img_cpy;
+            using Bitmap tofind = new(param.namedBitmap.img);
+
+            if (param.namedBitmap.name == nameof(empty))
+            {
+                empty = tofind.GetPixel(0, 0);
+            }
+            param.result.AddRange(FindBitmapsEntry(img_cpy, tofind, 30).Select(p => new PixelData(p.X, p.Y, new(tofind.GetPixel(0, 0), param.namedBitmap.name))));
+            tofind.Dispose();
+            img_cpy.Dispose();
+        });
     }
 }
