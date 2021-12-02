@@ -4,16 +4,16 @@ Requirements:\
 OS Windows 7 x64 or above;\
 .NET 5.
 
-The program uses ADB utility
+The program uses ADB utility.
 
 Target application: Water Color Sort\
 Link: https://play.google.com/store/apps/details?id=com.vnstartllc.sort.water
 
 App settings:\
 Theme: default;\
-Tubes: default;
+Tubes: default.
 
-Device screen resolution (WxH): 800x1520
+Device screen resolution (WxH): 800x1520px
 
 # How to use
 
@@ -23,4 +23,8 @@ Device screen resolution (WxH): 800x1520
 4. Make sure that target application installed;
 5. Block the Internet access for the application (needed for ads disabling);
 6. Run the program;
-7. Enjoy the program completes the levels one by one);
+7. Enjoy the program completes the levels one by one).
+
+# Console output
+
+![image](https://user-images.githubusercontent.com/32248195/144430533-612d84dc-27bb-44ae-83b5-2a3d22908b28.png)
