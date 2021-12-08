@@ -25,11 +25,22 @@ Device screen resolution (WxH): 800x1520px
 6. Run the program;
 7. Enjoy the program completes the levels one by one).
 
+Remark:\
+If the program misses the tubes, stop the program, restart the level manually and start the program again.
+
 # Program output
 
-Input data from the device:\
-![test](https://user-images.githubusercontent.com/32248195/144430865-93c0ea86-5275-4e44-a2f0-40422adaf136.jpg)\
-Processed image:\
-![level_find](https://user-images.githubusercontent.com/32248195/144431039-322e0bf9-8a98-475a-96f7-ca318e1a5a57.png)\
-Console output:\
-![image](https://user-images.githubusercontent.com/32248195/144431496-04d796bf-9f60-422f-b1d5-c3bf9f09597f.png)
+Input data from the device:
+
+![test](https://user-images.githubusercontent.com/32248195/144710087-3e1a603e-28ae-4895-b95b-2becd538acd6.jpg)
+
+Processed image:
+
+![level_find](https://user-images.githubusercontent.com/32248195/144710079-4a3abd12-9f47-46ad-b48f-3bb9cfee5ec1.png)
+
+Console output:
+
+![Console](https://user-images.githubusercontent.com/32248195/144710069-103d416c-02aa-4f9a-8ddc-a197bca0b1dc.gif)
+
+The console displays the turns that the program do synchronously.\
+'#' symbol indicates that the certain tube is empty or filled or sorted correctly.

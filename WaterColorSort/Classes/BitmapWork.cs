@@ -1,4 +1,5 @@
 ﻿
+using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -198,6 +199,62 @@ namespace WaterColorSort.Classes
                 }
             }
             image.Save("level_find.png");
+        }
+
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        private static Bitmap ProduceColoredOutput(List<Bottle> Bottles, List<int> del, int Offset = 10)
+        {
+            if (del[^1] != Bottles.Count)
+            {
+                del.Add(Bottles.Count);
+            }
+            int dist = (2 * Offset) + (Offset * Offset / 2);
+            Size BodySize = new(W / (del[1] * 2 + 1), H / ((del.Count - 1) * (Bottle.CURR_SIZE + 1) + 1));
+            Bitmap Output = new(W, H, PixelFormat.Format32bppArgb);
+            using (Graphics g = Graphics.FromImage(Output))
+            {
+                for (int i = 0; i < del.Count - 1; i++)
+                {
+                    for (int idx = del[i]; idx < del[i + 1]; idx++)
+                    {
+                        for (int elem = Bottles[idx].Count - Bottle.CURR_SIZE; elem < Bottles[idx].Count; elem++)
+                        {
+                            using Brush brush = new SolidBrush(Bottles[idx].ElementAtOrDefault(elem).color);
+                            g.FillRectangle(brush, new Rectangle(new Point(((idx * 2) - del[i] - del[i + 1] + del[1]) * BodySize.Width, (elem - Bottles[idx].Count + ((Bottle.CURR_SIZE + 1) * (i + 1))) * BodySize.Height), BodySize));
+                            brush.Dispose();
+                        }
+                    }
+                }
+
+                g.Save();
+            }
+            return Output;
+        }
+
+        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        internal static void MakeGIF(List<Bottle> Bottles, List<int> del, IEnumerable<Move> final)
+        {
+            MagickImageCollection collection = new();
+            using MemoryStream stream = new();
+            foreach (Move move in final)
+            {
+                Bottle.TransferColors(Bottles, move);
+                using Bitmap bitmap = ProduceColoredOutput(Bottles, del);
+                bitmap.Save(stream, ImageFormat.Png);
+                bitmap.Dispose();
+                stream.Position = 0;
+                collection.AddRange(stream);
+                stream.Flush();
+                collection.Last().AnimationDelay = 100;
+                GC.Collect();
+            }
+            stream.Close();
+            stream.Dispose();
+            _ = collection.Quantize(new QuantizeSettings() { Colors = 256 });
+            collection.Optimize();
+            collection.Coalesce();
+            collection.Write("save.gif");
+            collection.Dispose();
         }
 
         [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
