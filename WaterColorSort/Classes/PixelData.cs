@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -10,28 +9,41 @@ namespace WaterColorSort.Classes
     {
         internal const int PixelSize = 5;
         internal readonly int x, y;
-        internal readonly UserColor c;
+        internal readonly UserColor userColor;
 
-        internal PixelData(int x, int y, UserColor c)
+        internal PixelData(int x, int y, UserColor userColor)
         {
             this.x = x;
             this.y = y;
-            this.c = c;
+            this.userColor = userColor;
         }
 
         internal bool Colorsimilar(PixelData other, int tolerance = 10)
         {
-            Color _c = c.color;
-            return (Math.Abs(_c.R - other.c.color.R) <= tolerance && Math.Abs(_c.G - other.c.color.G) <= tolerance && Math.Abs(_c.B - other.c.color.B) <= tolerance);
+            Color _c = userColor.color;
+            return Math.Abs(_c.R - other.userColor.color.R) <= tolerance
+                && Math.Abs(_c.G - other.userColor.color.G) <= tolerance
+                && Math.Abs(_c.B - other.userColor.color.B) <= tolerance;
         }
 
-        public override bool Equals(object obj) => obj is PixelData data && data.x == x && data.y == y && data.c == c;
+        public override bool Equals(object obj) => obj is PixelData data
+                                                   && data.x == x
+                                                   && data.y == y
+                                                   && data.userColor == userColor;
 
-        public override int GetHashCode() => HashCode.Combine(x, y, c);
+        public override int GetHashCode() => HashCode.Combine(x, y, userColor);
 
-        internal static bool MakeDataSets(List<int> y_layers, List<PixelData> pixelDatas, List<List<PixelData>> bottle_pixel_list, out List<int> del)
+        internal static bool MakeDataSets(List<int> y_layers, List<PixelData> pixelDatas,
+                                          List<List<PixelData>> bottle_pixel_list, out List<int> del)
         {
             del = new();
+            if (y_layers == null
+                || pixelDatas == null
+                || bottle_pixel_list == null)
+            {
+                return false;
+            }
+
             List<int> cols_base = new();
             List<int> cols = new();
             for (int i = 0; i <= y_layers.Count - 2; i++)
@@ -39,7 +51,7 @@ namespace WaterColorSort.Classes
                 del.Add(cols.Count + del.ElementAtOrDefault(del.Count - 1) - (del.Count > 0 ? 1 : 0));
                 IEnumerable<PixelData> layer = pixelDatas.Where(d => d.y >= y_layers[i] && d.y < y_layers[i + 1]).ToList();
                 cols_base.Clear();
-                cols_base.AddRange(layer.Where(d => d.c == BitmapWork.empty).Select(d => d.x).Distinct().OrderBy(x => x));
+                cols_base.AddRange(layer.Where(d => d.userColor == BitmapWork.empty).Select(d => d.x).Distinct().OrderBy(x => x));
                 if (cols_base.Count == 0)
                 {
                     return false;
@@ -66,7 +78,7 @@ namespace WaterColorSort.Classes
         {
             y_layers.Clear();
             List<int> dist_y = new();
-            dist_y.AddRange(pixelDatas.Where(d => d.c == BitmapWork.empty).Select(d => d.y).Distinct().OrderBy(y => y));
+            dist_y.AddRange(pixelDatas.Where(d => d.userColor == BitmapWork.empty).Select(DataY).Distinct().OrderBy(y => y));
             if (dist_y.Count == 0)
             {
                 return false;
@@ -74,7 +86,7 @@ namespace WaterColorSort.Classes
             y_layers.Add(dist_y[0]);
             for (int i = 0; i < dist_y.Count - 1; i++)
             {
-                List<PixelData> find_l = pixelDatas.Where(d => Math.Abs(d.y - dist_y[i + 1]) <= PixelSize && d.c.color == BitmapWork.empty)
+                List<PixelData> find_l = pixelDatas.Where(d => Math.Abs(d.y - dist_y[i + 1]) <= PixelSize && d.userColor.color == BitmapWork.empty)
                                                    .OrderBy(d => d.x).ToList();
                 if (dist_y[i + 1] - dist_y[i] >= 240 && find_l.Count >= 10 && find_l[1].x - find_l[0].x < PixelSize * 2)
                 {
@@ -93,5 +105,7 @@ namespace WaterColorSort.Classes
             }
             return true;
         }
+
+        internal static readonly Func<PixelData, int> DataY = d => d.y;
     }
 }

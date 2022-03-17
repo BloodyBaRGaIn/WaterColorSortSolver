@@ -1,12 +1,12 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using WaterColorSort.Classes;
 
+[assembly: System.Reflection.AssemblyVersion("1.0")]
+[assembly: System.Resources.NeutralResourcesLanguage("en")]
 namespace WaterColorSort
 {
     internal static class Program
@@ -29,9 +29,9 @@ namespace WaterColorSort
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("START");
+                //Console.WriteLine("START");
                 ProcessWork.StartApp().Wait();
-                Console.WriteLine("APP STARTED");
+                //Console.WriteLine("APP STARTED");
                 #region Clear
                 Bottle.CURR_SIZE = Bottle.MIN_SIZE;
                 Bottles.Clear();
@@ -47,94 +47,61 @@ namespace WaterColorSort
                 {
                     continue;
                 }
-                Console.WriteLine("GOT PIXELS");
+                //Console.WriteLine("GOT PIXELS");
 
                 if (!PixelData.FillYLayers(y_layers, pixelDatas)
                     || !PixelData.MakeDataSets(y_layers, pixelDatas, bottle_pixel_list, out List<int> del))
                 {
                     continue;
                 }
-                Console.WriteLine("DATA STRUCTURED");
+                //Console.WriteLine("DATA STRUCTURED");
 
                 BitmapWork.SaveColorImage(bottle_pixel_list, bounds, new Size(1, 1) * PixelData.PixelSize);
                 bottle_pixel_list.RemoveAll(p => p.Count <= 10);
                 Bottle.Solution_Found = false;
-                if (!FillAndSolve(Bottles, bottle_pixel_list, trees, del))
+                if (!Bottle.FillAndSolve(Bottles, bottle_pixel_list, trees, del))
                 {
                     continue;
                 }
-                Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
+                //Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
 
                 if (!Tree.TraceSolution(trees, final))
                 {
                     continue;
                 }
-                Console.WriteLine("MINIMAL SOLUTION TRACED");
+                //Console.WriteLine("MINIMAL SOLUTION TRACED");
 
                 Move.ClearMoves(final);
-                Console.WriteLine($"\nTOTAL MOVES COUNT: {final.Count}");
+                //Console.WriteLine($"\nTOTAL MOVES COUNT: {final.Count}");
 
-                int done = Bottle.ApplyMoves(Bottles, final);
+                int done = Bottle.ApplyMoves(Bottle.CopyBottles(Bottles), final);
                 bool failed = false;
                 if (done != final.Count)
                 {
                     final = final.Take(done).ToList();
                     failed = true;
                 }
-                Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
-
-                Console.WriteLine("\nRESULT\n");
-                Bottle.PrintColoredBottles(Bottles, del);
-                del.Clear();
-
-                Console.WriteLine("\nMOVES\n");
-                if (!Move.PerformMoves(bottle_pixel_list, final, Offset))
+                //Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
+               
+                if (!Move.PerformMoves(bottle_pixel_list, Bottles, del, final, Offset))
                 {
                     continue;
                 }
+                
                 if (!Bottles.All(b => b.IsCompleted) || failed)
                 {
-                    Console.WriteLine("\nFAILED\n");
+                    //Console.WriteLine("\nFAILED\n");
                     continue;
                 }
-                Console.WriteLine($"\n{final.Count} MOVES PERFORMED\n");
-                Thread.Sleep(1000);
+
+                Task.Delay(500).Wait();
+                Console.Clear();
+                Bottle.PrintColoredBottles(Bottles, del);
+                Console.WriteLine($"{final.Count} MOVES PERFORMED");
+
+                del.Clear();
                 Move.GotoNext();
             }
-        }
-
-        private static bool FillAndSolve(List<Bottle> Bottles, List<List<PixelData>> bottle_pixel_list, List<Tree> trees, List<int> del)
-        {
-            while (true)
-            {
-                if (!Bottle.FillBottles(Bottles, bottle_pixel_list))
-                {
-                    return false;
-                }
-                if (Bottle.FilledCorrectly(Bottles))
-                {
-                    Console.WriteLine("\nINPUT\n");
-                    Bottle.PrintColoredBottles(Bottles, del);
-                    Bottle.Solve(Bottles, trees);
-                }
-                if (trees.Count == 0)
-                {
-                    if (Bottle.CURR_SIZE < Bottle.MAX_SIZE)
-                    {
-                        Bottle.CURR_SIZE++;
-                        continue;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return true;
         }
     }
 }

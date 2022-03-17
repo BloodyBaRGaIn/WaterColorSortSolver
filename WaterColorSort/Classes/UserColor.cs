@@ -1,7 +1,6 @@
-﻿
-using System;
-using System.Linq;
+﻿using System;
 using System.Drawing;
+using System.Linq;
 
 namespace WaterColorSort.Classes
 {
@@ -16,10 +15,10 @@ namespace WaterColorSort.Classes
             this.name = name;
         }
 
-        internal ConsoleColor GetNearestColor()
+        internal ConsoleColor GetColorByName()
         {
-            string name = this.name; // needed for anonymous lambda expression error bypass
-            return BitmapWork.named_resources.FirstOrDefault(r => r.name == name).color;
+            string this_name = name; // needed for anonymous lambda expression error CS1673 bypass
+            return BitmapWork.named_resources.FirstOrDefault(r => r.namedBitmap.name == this_name).color;
         }
 
         public static implicit operator Color(UserColor color) => color.color;
