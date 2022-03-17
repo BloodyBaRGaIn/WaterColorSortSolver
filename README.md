@@ -17,20 +17,10 @@ Device screen resolution (WxH): 800x1520
 
 # How to use
 
-<<<<<<< HEAD
 1. Activate Developer Mode on the device;
 2. Enable USB Debugging;
 3. Connect the device to the computer;
 4. Make sure that target application installed;
 5. Block the Internet access for the application (needed for ads disabling);
 6. Run the program;
-7. Enjoy the program completes the levels one by one);
-=======
-1. Activate Developer Mode on the device\
-2. Enable USB Debugging\
-3. Connect the device to the computer\
-4. Make sure that target application installed\
-5. Block the Internet access for the application (needed for ads disabling)\
-6. Run the program\
-7. Enjoy the program completes the levels one by one)
->>>>>>> parent of 76871f1 (Update README.md)
+7. Enjoy the program completes the levels one by one) :D
