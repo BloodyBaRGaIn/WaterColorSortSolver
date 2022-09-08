@@ -28,9 +28,13 @@ namespace WaterColorSort
             while (true)
             {
                 Console.Clear();
-                //Console.WriteLine("START");
+#if DEBUG
+                Console.WriteLine("START");
+#endif
                 ProcessWork.StartApp().Wait();
-                //Console.WriteLine("APP STARTED");
+#if DEBUG
+                Console.WriteLine("APP STARTED");
+#endif
                 #region Clear
                 Bottle.CURR_SIZE = Bottle.MIN_SIZE;
                 Bottles.Clear();
@@ -45,14 +49,17 @@ namespace WaterColorSort
                 {
                     continue;
                 }
-                //Console.WriteLine("GOT PIXELS");
-
+#if DEBUG
+                Console.WriteLine("GOT PIXELS");
+#endif
                 if (!PixelData.FillYLayers(y_layers, pixelDatas)
                     || !PixelData.MakeDataSets(y_layers, pixelDatas, bottle_pixel_list, out List<int> del))
                 {
                     continue;
                 }
-                //Console.WriteLine("DATA STRUCTURED");
+#if DEBUG
+                Console.WriteLine("DATA STRUCTURED");
+#endif
                 BitmapWork.SaveColorImage(bottle_pixel_list, new(Point.Empty, new Size(BitmapWork.W, BitmapWork.H)), new Size(1, 1) * PixelData.PixelSize);
                 bottle_pixel_list.RemoveAll(p => p.Count <= 10);
                 Bottle.Solution_Found = false;
@@ -60,17 +67,20 @@ namespace WaterColorSort
                 {
                     continue;
                 }
-                //Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
-
+#if DEBUG
+                Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
+#endif
                 if (!Tree.TraceSolution(trees, final))
                 {
                     continue;
                 }
-                //Console.WriteLine("MINIMAL SOLUTION TRACED");
-
+#if DEBUG
+                Console.WriteLine("MINIMAL SOLUTION TRACED");
+#endif
                 Move.ClearMoves(final);
-                //Console.WriteLine($"\nTOTAL MOVES COUNT: {final.Count}");
-
+#if DEBUG
+                Console.WriteLine($"\nTOTAL MOVES COUNT: {final.Count}");
+#endif
                 int done = Bottle.ApplyMoves(Bottle.CopyBottles(Bottles), final);
                 bool failed = false;
                 if (done != final.Count)
@@ -78,8 +88,9 @@ namespace WaterColorSort
                     final = final.Take(done).ToList();
                     failed = true;
                 }
-                //Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
-               
+#if DEBUG
+                Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
+#endif
                 if (!Move.PerformMoves(bottle_pixel_list, Bottles, del, final, Offset))
                 {
                     continue;
@@ -87,7 +98,9 @@ namespace WaterColorSort
                 
                 if (!Bottles.All(b => b.IsCompleted) || failed)
                 {
-                    //Console.WriteLine("\nFAILED\n");
+#if DEBUG
+                    Console.WriteLine("\nFAILED\n");
+#endif
                     continue;
                 }
 
@@ -97,7 +110,7 @@ namespace WaterColorSort
                 Console.WriteLine($"{final.Count} MOVES PERFORMED");
 
                 del.Clear();
-                Task.Delay(1000).Wait();
+                Task.Delay(1500).Wait();
                 Move.GotoNext();
             }
         }

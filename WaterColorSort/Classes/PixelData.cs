@@ -33,6 +33,8 @@ namespace WaterColorSort.Classes
 
         public override int GetHashCode() => HashCode.Combine(x, y, userColor);
 
+        private static int x_dist = 0;
+
         internal static bool MakeDataSets(List<int> y_layers, List<PixelData> pixelDatas,
                                           List<List<PixelData>> bottle_pixel_list, out List<int> del)
         {
@@ -46,6 +48,7 @@ namespace WaterColorSort.Classes
 
             List<int> cols_base = new();
             List<int> cols = new();
+            int max_dist = (int)(BitmapWork.W * 3f / x_dist);
             for (int i = 0; i <= y_layers.Count - 2; i++)
             {
                 del.Add(cols.Count + del.ElementAtOrDefault(del.Count - 1) - (del.Count > 0 ? 1 : 0));
@@ -60,12 +63,12 @@ namespace WaterColorSort.Classes
                 cols.Add(cols_base[0]);
                 for (int idx = 0; idx < cols_base.Count - 1; idx++)
                 {
-                    if (cols_base[idx + 1] - cols_base[idx] >= 15)
+                    if (cols_base[idx + 1] - cols_base[idx] >= max_dist)
                     {
                         cols.Add(cols_base[idx + 1]);
                     }
                 }
-                cols.Add(cols_base.Last() + PixelSize * 20);
+                cols.Add(cols_base.Last() + (PixelSize * max_dist));
                 for (int idx = 0; idx <= cols.Count - 2; idx++)
                 {
                     bottle_pixel_list.Add(layer.Where(d => d.x >= cols[idx] && d.x < cols[idx + 1]).ToList());
@@ -84,11 +87,29 @@ namespace WaterColorSort.Classes
                 return false;
             }
             y_layers.Add(dist_y[0]);
+            x_dist = 0;
+            for (int i = 0; i < dist_y.Count; i++)
+            {
+                List<int> find_x = pixelDatas.Where(d => d.userColor.color == BitmapWork.empty && Math.Abs(d.y - dist_y[i]) <= PixelSize).Select(d => d.x).Distinct().OrderBy(x => x).ToList();
+                for (int c = 0; c < find_x.Count - 1; c++)
+                {
+                    int dist = find_x[c + 1] - find_x[c];
+                    if (x_dist < dist)
+                    {
+                        x_dist = dist;
+                    }
+                }
+            }
+            //float amp = 0.6f - 42f / x_dist;
+            float amp = 0.6169f - 42.1184f / x_dist;
+            //134 150 160 164
+            //0.3 0.34 0.3625 0.35
             for (int i = 0; i < dist_y.Count - 1; i++)
             {
                 List<PixelData> find_l = pixelDatas.Where(d => Math.Abs(d.y - dist_y[i + 1]) <= PixelSize && d.userColor.color == BitmapWork.empty)
                                                    .OrderBy(d => d.x).ToList();
-                if (dist_y[i + 1] - dist_y[i] >= 250 && find_l.Count >= 10 && find_l[1].x - find_l[0].x < PixelSize * 2)
+                int y_diff = dist_y[i + 1] - dist_y[i];
+                if (y_diff >= (int)(BitmapWork.H * amp) && find_l.Count >= 10 && find_l[1].x - find_l[0].x < PixelSize * 2)
                 {
                     y_layers.Add(dist_y[i + 1]);
                 }

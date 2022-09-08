@@ -34,5 +34,7 @@ namespace WaterColorSort.Classes
         public override int GetHashCode() => HashCode.Combine(color, name);
 
         int IComparable.CompareTo(object obj) => name.CompareTo(((UserColor)obj).name);
+
+        public override string ToString() => name;
     }
 }

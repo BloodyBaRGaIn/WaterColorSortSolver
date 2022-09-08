@@ -135,6 +135,7 @@ namespace WaterColorSort.Classes
         private static bool FillBottles(in List<Bottle> bottles, in List<List<PixelData>> bottle_pixel_list)
         {
             bottles.Clear();
+            int segment_len = -1;
             foreach (List<PixelData> b in bottle_pixel_list)
             {
                 if (!b.Any(d => d.userColor != BitmapWork.empty))
@@ -154,11 +155,11 @@ namespace WaterColorSort.Classes
                 }
                 int max_y = b.Where(d => d.userColor != BitmapWork.empty).Max(PixelData.DataY);
                 min_y += (max_y - min_y) / 8;
-                int segment_len = ((max_y - min_y) / CURR_SIZE) + 1;
+                if (segment_len == -1) segment_len = ((max_y - min_y) / CURR_SIZE) + 1;
                 Bottle new_b = new();
-                for (int seg = CURR_SIZE - 1; seg >= 0; seg--)
+                for (int seg = 1; seg <= CURR_SIZE; seg++)
                 {
-                    int y_lim_min = min_y + (seg * segment_len);
+                    int y_lim_min = max_y - (seg * segment_len);
                     IEnumerable<IGrouping<UserColor, PixelData>> groups = b.Where(d => d.y >= y_lim_min && d.y < y_lim_min + segment_len)
                                                                            .GroupBy(d => d.userColor)
                                                                            .OrderByDescending(gr => gr.Count());
