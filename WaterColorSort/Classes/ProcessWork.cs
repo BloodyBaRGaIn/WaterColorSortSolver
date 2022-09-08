@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -73,7 +72,8 @@ namespace WaterColorSort.Classes
         {
             while (true)
             {
-                int num = System.Text.RegularExpressions.Regex.Matches(GetStreamData($"devices"), @"\d+\t\w+").Count;
+                string get_info = GetStreamData($"devices");
+                int num = System.Text.RegularExpressions.Regex.Matches(get_info, @"\tdevice").Count;
                 if (num != 1)
                 {
                     ThrowError(num == 0 ? "No devices connected" : "Too many devices connected");

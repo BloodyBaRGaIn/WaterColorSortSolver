@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -24,13 +23,14 @@ namespace WaterColorSort
             List<int> y_layers = new();
             List<Tree> trees = new();
             List<Move> final = new();
-            Rectangle bounds = new(Point.Empty, new Size(BitmapWork.W, BitmapWork.H));
             ProcessWork.KillADB();
             #endregion
             while (true)
             {
                 Console.Clear();
+                //Console.WriteLine("START");
                 ProcessWork.StartApp().Wait();
+                //Console.WriteLine("APP STARTED");
                 #region Clear
                 Bottle.CURR_SIZE = Bottle.MIN_SIZE;
                 Bottles.Clear();
@@ -40,12 +40,12 @@ namespace WaterColorSort
                 trees.Clear();
                 final.Clear();
                 #endregion
-
                 pixelDatas.AddRange(BitmapWork.GetPixels().Distinct(new PixelComparer()).OrderBy(d => d.y).ThenBy(d => d.x));
                 if (pixelDatas.Count == 0)
                 {
                     continue;
                 }
+                //Console.WriteLine("GOT PIXELS");
 
                 if (!PixelData.FillYLayers(y_layers, pixelDatas)
                     || !PixelData.MakeDataSets(y_layers, pixelDatas, bottle_pixel_list, out List<int> del))
@@ -53,8 +53,7 @@ namespace WaterColorSort
                     continue;
                 }
                 //Console.WriteLine("DATA STRUCTURED");
-
-                BitmapWork.SaveColorImage(bottle_pixel_list, bounds, new Size(1, 1) * PixelData.PixelSize);
+                BitmapWork.SaveColorImage(bottle_pixel_list, new(Point.Empty, new Size(BitmapWork.W, BitmapWork.H)), new Size(1, 1) * PixelData.PixelSize);
                 bottle_pixel_list.RemoveAll(p => p.Count <= 10);
                 Bottle.Solution_Found = false;
                 if (!Bottle.FillAndSolve(Bottles, bottle_pixel_list, trees, del))
@@ -62,6 +61,7 @@ namespace WaterColorSort
                     continue;
                 }
                 //Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
+
                 if (!Tree.TraceSolution(trees, final))
                 {
                     continue;
@@ -79,10 +79,12 @@ namespace WaterColorSort
                     failed = true;
                 }
                 //Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
-
-                //BitmapWork.MakeGIF(Bottle.CopyBottles(Bottles), del, final);
-                Move.PerformMoves(bottle_pixel_list, Bottles, del, final, Offset);
-
+               
+                if (!Move.PerformMoves(bottle_pixel_list, Bottles, del, final, Offset))
+                {
+                    continue;
+                }
+                
                 if (!Bottles.All(b => b.IsCompleted) || failed)
                 {
                     //Console.WriteLine("\nFAILED\n");
@@ -95,6 +97,7 @@ namespace WaterColorSort
                 Console.WriteLine($"{final.Count} MOVES PERFORMED");
 
                 del.Clear();
+                Task.Delay(1000).Wait();
                 Move.GotoNext();
             }
         }

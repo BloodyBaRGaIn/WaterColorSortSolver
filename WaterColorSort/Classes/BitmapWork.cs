@@ -1,5 +1,4 @@
 ﻿
-using ImageMagick;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -14,30 +13,36 @@ namespace WaterColorSort.Classes
 {
     internal static class BitmapWork
     {
-        internal const int X = 0;
-        internal const int Y = 335;
-        internal const int W = 720;
-        internal const int H = 800;
+        internal static int X = 0;
+        internal static int Y = 0;
+        internal static int W = 0;
+        internal static int H = 0;
+        internal const bool SaveImageEnabled = true;
         internal static Color empty;
 
-        internal static List<(NamedBitmap namedBitmap, ConsoleColor color)> named_resources = new(13)
-        {
-            (new(Resources.Palette.blue, nameof(Resources.Palette.blue)), ConsoleColor.Blue),
-            (new(Resources.Palette.brown, nameof(Resources.Palette.brown)), ConsoleColor.DarkRed),
-            (new(Resources.Palette.cyan, nameof(Resources.Palette.cyan)), ConsoleColor.Cyan),
-            (new(Resources.Palette.dark_cyan, nameof(Resources.Palette.dark_cyan)), ConsoleColor.DarkCyan),
-            (new(Resources.Palette.empty, nameof(Resources.Palette.empty)), ConsoleColor.Black),
-            (new(Resources.Palette.gray, nameof(Resources.Palette.gray)), ConsoleColor.DarkGray),
-            (new(Resources.Palette.green, nameof(Resources.Palette.green)), ConsoleColor.Green),
-            (new(Resources.Palette.magenta, nameof(Resources.Palette.magenta)), ConsoleColor.Magenta),
-            (new(Resources.Palette.orange, nameof(Resources.Palette.orange)), ConsoleColor.DarkYellow),
-            (new(Resources.Palette.pink, nameof(Resources.Palette.pink)), ConsoleColor.White),
-            (new(Resources.Palette.purple, nameof(Resources.Palette.purple)), ConsoleColor.DarkMagenta),
-            (new(Resources.Palette.red, nameof(Resources.Palette.red)), ConsoleColor.Red),
-            (new(Resources.Palette.yellow, nameof(Resources.Palette.yellow)), ConsoleColor.Yellow),
-        };
+        internal static readonly List<(NamedBitmap namedBitmap, ConsoleColor color)> named_resources;
 
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        static BitmapWork()
+        {
+            named_resources = new(13)
+            {
+                (new(Resources.Palette.blue, nameof(Resources.Palette.blue)), ConsoleColor.Blue),
+                (new(Resources.Palette.brown, nameof(Resources.Palette.brown)), ConsoleColor.DarkRed),
+                (new(Resources.Palette.cyan, nameof(Resources.Palette.cyan)), ConsoleColor.Cyan),
+                (new(Resources.Palette.dark_cyan, nameof(Resources.Palette.dark_cyan)), ConsoleColor.DarkCyan),
+                (new(Resources.Palette.empty, nameof(Resources.Palette.empty)), ConsoleColor.Black),
+                (new(Resources.Palette.gray, nameof(Resources.Palette.gray)), ConsoleColor.DarkGray),
+                (new(Resources.Palette.green, nameof(Resources.Palette.green)), ConsoleColor.Green),
+                (new(Resources.Palette.magenta, nameof(Resources.Palette.magenta)), ConsoleColor.Magenta),
+                (new(Resources.Palette.orange, nameof(Resources.Palette.orange)), ConsoleColor.DarkYellow),
+                (new(Resources.Palette.pink, nameof(Resources.Palette.pink)), ConsoleColor.White),
+                (new(Resources.Palette.purple, nameof(Resources.Palette.purple)), ConsoleColor.DarkMagenta),
+                (new(Resources.Palette.red, nameof(Resources.Palette.red)), ConsoleColor.Red),
+                (new(Resources.Palette.yellow, nameof(Resources.Palette.yellow)), ConsoleColor.Yellow),
+            };
+        }
+
+        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         private static Bitmap GetImageFromStream()
         {
             StreamReader stream = ProcessWork.GetStream($"shell screencap -p");
@@ -66,11 +71,16 @@ namespace WaterColorSort.Classes
             return data.Count == 0 ? null : new(new MemoryStream(data.ToArray()));
         }
 
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         internal static IEnumerable<PixelData> GetPixels()
         {
             using Bitmap image = GetBitmap();
-            image.Save("test.jpg", ImageFormat.Jpeg);
+            if (SaveImageEnabled)
+            {
+#pragma warning disable CS0162
+                image.Save("test.jpg", ImageFormat.Jpeg);
+#pragma warning restore CS0162
+            }
 
             List<PixelFindStruct> input_collection = named_resources
                 .Select(s => new PixelFindStruct(
@@ -82,10 +92,19 @@ namespace WaterColorSort.Classes
             return input_collection.SelectMany(i => i.result);
         }
 
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        internal static Bitmap GetBitmap() => GetImageFromStream().Clone(new(X, Y, W, H), PixelFormat.Format32bppArgb);
+        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
+        internal static Bitmap GetBitmap()
+        {
+            Bitmap temp_map = GetImageFromStream();
+            X = 0;
+            Y = (int)(temp_map.Height * 0.25f);
+            W = temp_map.Width;
+            H = (int)(temp_map.Height * 0.55f);
+            temp_map = temp_map.Clone(new(X, Y, W, H), PixelFormat.Format32bppArgb);
+            return temp_map;
+        }
 
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         internal static List<Point> FindBitmapsEntry(Bitmap sourceBitmap, Bitmap serchingBitmap, int toleration)
         {
             if (sourceBitmap == null)
@@ -186,78 +205,28 @@ namespace WaterColorSort.Classes
             return pointsList;
         }
 
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         internal static void SaveColorImage(List<List<PixelData>> bottle_pixel_list, Rectangle bounds, Size size)
         {
+#pragma warning disable CS0162
+            if (!SaveImageEnabled)
+            {
+                return;
+            }
             using Bitmap image = new(bounds.Width, bounds.Height);
             using Graphics graphics = Graphics.FromImage(image);
             foreach (IEnumerable<PixelData> bottle_pixels in bottle_pixel_list)
             {
                 foreach (PixelData data in bottle_pixels)
                 {
-                    graphics.FillRectangle(new SolidBrush(data.c), new Rectangle(new(data.x, data.y), size));
+                    graphics.FillRectangle(new SolidBrush(data.userColor), new Rectangle(new(data.x, data.y), size));
                 }
             }
             image.Save("level_find.png");
+#pragma warning restore CS0162
         }
 
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        private static Bitmap ProduceColoredOutput(List<Bottle> Bottles, List<int> del, int Offset = 10)
-        {
-            if (del[^1] != Bottles.Count)
-            {
-                del.Add(Bottles.Count);
-            }
-            int dist = (2 * Offset) + (Offset * Offset / 2);
-            Size BodySize = new(W / (del[1] * 2 + 1), H / ((del.Count - 1) * (Bottle.CURR_SIZE + 1) + 1));
-            Bitmap Output = new(W, H, PixelFormat.Format32bppArgb);
-            using (Graphics g = Graphics.FromImage(Output))
-            {
-                for (int i = 0; i < del.Count - 1; i++)
-                {
-                    for (int idx = del[i]; idx < del[i + 1]; idx++)
-                    {
-                        for (int elem = Bottles[idx].Count - Bottle.CURR_SIZE; elem < Bottles[idx].Count; elem++)
-                        {
-                            using Brush brush = new SolidBrush(Bottles[idx].ElementAtOrDefault(elem).color);
-                            g.FillRectangle(brush, new Rectangle(new Point(((idx * 2) - del[i] - del[i + 1] + del[1]) * BodySize.Width, (elem - Bottles[idx].Count + ((Bottle.CURR_SIZE + 1) * (i + 1))) * BodySize.Height), BodySize));
-                            brush.Dispose();
-                        }
-                    }
-                }
-
-                g.Save();
-            }
-            return Output;
-        }
-
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
-        internal static void MakeGIF(List<Bottle> Bottles, List<int> del, IEnumerable<Move> final)
-        {
-            MagickImageCollection collection = new();
-            using MemoryStream stream = new();
-            foreach (Move move in final)
-            {
-                Bottle.TransferColors(Bottles, move);
-                using Bitmap bitmap = ProduceColoredOutput(Bottles, del);
-                bitmap.Save(stream, ImageFormat.Png);
-                bitmap.Dispose();
-                stream.Position = 0;
-                collection.AddRange(stream);
-                stream.Flush();
-                collection.Last().AnimationDelay = 100;
-                GC.Collect();
-            }
-            stream.Close();
-            stream.Dispose();
-            _ = collection.Quantize(new QuantizeSettings() { Colors = 256 });
-            collection.Optimize();
-            collection.Coalesce();
-            collection.Write("save.gif");
-            collection.Dispose();
-        }
-
-        [SuppressMessage("Interoperability", "CA1416:Проверка совместимости платформы", Justification = "<Ожидание>")]
+        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         private static readonly Action<PixelFindStruct> ForeachLoopAction = new(param =>
         {
             using Bitmap img_cpy = param.img_cpy;

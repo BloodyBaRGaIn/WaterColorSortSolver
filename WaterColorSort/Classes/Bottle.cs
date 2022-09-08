@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -12,22 +11,18 @@ namespace WaterColorSort.Classes
         private const int PixelGroupMinSize = 20;
 
         internal const int MAX_SIZE = 10;
-        internal const int MIN_SIZE = 2;
-        internal static int CURR_SIZE = 2;
+        internal const int MIN_SIZE = 4;
+        internal static int CURR_SIZE = 4;
 
         internal static bool Solution_Found = false;
 
         private delegate void Print(int idx, params object[] param);
 
-        private Bottle(params Color[] colors)
-        {
-            foreach (UserColor c in colors)
-            {
-                Push(c);
-            }
-        }
+        private Bottle(params Color[] colors) => PushColors(from Color c in colors select (UserColor)c);
 
-        private Bottle(in UserColor[] colors)
+        private Bottle(in UserColor[] colors) => PushColors(colors);
+
+        private void PushColors(IEnumerable<UserColor> colors)
         {
             foreach (UserColor c in colors)
             {
@@ -42,19 +37,15 @@ namespace WaterColorSort.Classes
             Bottle bot = (param[0] as List<Bottle>)[b];
             int idx = (int)param[1] + bot.Count - CURR_SIZE - 1;
             Console.Write('\u2502');
-            Console.ForegroundColor = (idx >= 0 && idx < bot.Count ? bot.ElementAt(idx) : default).GetNearestColor();
-            Console.Write('\u2588');
-            Console.Write('\u2588');
+            Console.ForegroundColor = (idx >= 0 && idx < bot.Count ? bot.ElementAt(idx) : default).GetColorByName();
+            Console.Write("\u2588\u2588");
             Console.ResetColor();
-            Console.Write('\u2502');
-            Console.Write(' ');
+            Console.Write("\u2502 ");
         });
 
         private static readonly Print Base = new((_, _) => Console.Write("\u2514\u2500\u2500\u2518 "));
-        private static readonly Print Num = new((b, param) =>
-        {
-            Console.Write($"{((param[0] as List<Bottle>)[b].IsCompleted ? "#" : "")}{b}".PadLeft(3).PadRight(5));
-        });
+
+        private static readonly Print Num = new((b, param) => Console.Write($"{((param[0] as List<Bottle>)[b].IsCompleted ? "#" : "")}{b}".PadLeft(3).PadRight(5)));
 
         private static bool TransferColors(in Bottle from, in Bottle to)
         {
@@ -146,36 +137,39 @@ namespace WaterColorSort.Classes
             bottles.Clear();
             foreach (List<PixelData> b in bottle_pixel_list)
             {
-                if (!b.Any(d => d.c != BitmapWork.empty))
+                if (!b.Any(d => d.userColor != BitmapWork.empty))
                 {
                     bottles.Add(new());
                     continue;
                 }
-                int min_y = b.Min(d => d.y);
-                int max_y = b.Where(d => d.c != BitmapWork.empty).Max(d => d.y);
-                if (Math.Abs(max_y - b.Where(d => d.c == BitmapWork.empty).Max(d => d.y)) > 20)
+                int min_y = 0;
+                var gr_empty = b.Where(d => d.userColor == BitmapWork.empty).GroupBy(PixelData.DataY).Where(g => g.Count() >= PixelGroupMinSize);
+                if (gr_empty.Any())
                 {
-                    min_y = b.Where(d => d.c == BitmapWork.empty).Max(d => d.y);
-                    b.RemoveAll(d => Math.Abs(min_y - d.y) > 20 && d.c == BitmapWork.empty);
+                    min_y = gr_empty.OrderBy(g => g.Key).First().Key;
                 }
-                int segment_len = (int)(((max_y - min_y) / (CURR_SIZE + 0.5f)) + 1);
-                int segment_len_4 = (int)(((max_y - min_y) / 4.5f) + 1);
-                min_y += segment_len_4 / 2;
+                else
+                {
+                    min_y = b.Where(d => d.userColor == BitmapWork.empty).Min(PixelData.DataY);
+                }
+                int max_y = b.Where(d => d.userColor != BitmapWork.empty).Max(PixelData.DataY);
+                min_y += (max_y - min_y) / 8;
+                int segment_len = ((max_y - min_y) / CURR_SIZE) + 1;
                 Bottle new_b = new();
                 for (int seg = CURR_SIZE - 1; seg >= 0; seg--)
                 {
                     int y_lim_min = min_y + (seg * segment_len);
                     IEnumerable<IGrouping<UserColor, PixelData>> groups = b.Where(d => d.y >= y_lim_min && d.y < y_lim_min + segment_len)
-                                                                           .GroupBy(d => d.c)
+                                                                           .GroupBy(d => d.userColor)
                                                                            .OrderByDescending(gr => gr.Count());
                     if (groups.Any() && groups.First().Count() > PixelGroupMinSize)
                     {
                         UserColor color = groups.First().Key;
                         if (color == BitmapWork.empty)
                         {
-                            return false;
+                            //return false;
                         }
-                        new_b.Push(color);
+                        else new_b.Push(color);
                     }
                 }
                 bottles.Add(new_b);

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -18,11 +17,11 @@ namespace WaterColorSort.Classes
             this.result = result;
         }
 
-        public override bool Equals(object obj) => obj != null &&
-                                                   obj is PixelFindStruct other &&
-                                                   EqualityComparer<NamedBitmap>.Default.Equals(namedBitmap, other.namedBitmap) &&
-                                                   EqualityComparer<Bitmap>.Default.Equals(img_cpy, other.img_cpy) &&
-                                                   EqualityComparer<List<PixelData>>.Default.Equals(result, other.result);
+        public override bool Equals(object obj) => obj != null
+                                                   && obj is PixelFindStruct other
+                                                   && EqualityComparer<NamedBitmap>.Default.Equals(namedBitmap, other.namedBitmap)
+                                                   && EqualityComparer<Bitmap>.Default.Equals(img_cpy, other.img_cpy)
+                                                   && EqualityComparer<List<PixelData>>.Default.Equals(result, other.result);
 
         public override int GetHashCode() => HashCode.Combine(namedBitmap, img_cpy, result);
 
