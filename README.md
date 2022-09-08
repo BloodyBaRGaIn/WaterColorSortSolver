@@ -2,9 +2,9 @@
 
 Requirements:\
 OS Windows 7 x64 or above;\
-.NET 5.
+.NET 5.0
 
-The program uses ADB utility
+The program uses ADB utility and IronOCR library
 
 Target application: Water Color Sort\
 Link: https://play.google.com/store/apps/details?id=com.vnstartllc.sort.water
@@ -12,8 +12,6 @@ Link: https://play.google.com/store/apps/details?id=com.vnstartllc.sort.water
 App settings:\
 Theme: default;\
 Tubes: default;
-
-Device screen resolution (WxH): 800x1520
 
 # How to use
 
