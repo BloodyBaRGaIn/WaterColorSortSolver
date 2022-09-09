@@ -9,6 +9,7 @@ using WaterColorSort.Classes;
 [assembly: System.Resources.NeutralResourcesLanguage("en")]
 namespace WaterColorSort
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class Program
     {
         private const int Offset = 20;
@@ -31,10 +32,12 @@ namespace WaterColorSort
 #if DEBUG
                 Console.WriteLine("START");
 #endif
-                ProcessWork.StartApp().Wait();
+                ProcessWork.StartApp();
 #if DEBUG
                 Console.WriteLine("APP STARTED");
 #endif
+                ProcessWork.StartLiveConnectionCheck();
+
                 #region Clear
                 Bottle.CURR_SIZE = Bottle.MIN_SIZE;
                 Bottles.Clear();
@@ -44,7 +47,7 @@ namespace WaterColorSort
                 trees.Clear();
                 final.Clear();
                 #endregion
-                pixelDatas.AddRange(BitmapWork.GetPixels().Distinct(new PixelComparer()).OrderBy(d => d.y).ThenBy(d => d.x));
+                pixelDatas.AddRange(BitmapWork.GetPixels().Distinct(new PixelComparer()).OrderBy(d => d.Y).ThenBy(d => d.X));
                 if (pixelDatas.Count == 0)
                 {
                     continue;
@@ -60,7 +63,9 @@ namespace WaterColorSort
 #if DEBUG
                 Console.WriteLine("DATA STRUCTURED");
 #endif
-                BitmapWork.SaveColorImage(bottle_pixel_list, new(Point.Empty, new Size(BitmapWork.W, BitmapWork.H)), new Size(1, 1) * PixelData.PixelSize);
+#if DEBUG
+                BitmapWork.SaveColorImage(bottle_pixel_list, new(Point.Empty, BitmapWork.Size), new Size(1, 1) * PixelData.PixelSize);
+#endif
                 bottle_pixel_list.RemoveAll(p => p.Count <= 10);
                 Bottle.Solution_Found = false;
                 if (!Bottle.FillAndSolve(Bottles, bottle_pixel_list, trees, del))
@@ -95,7 +100,7 @@ namespace WaterColorSort
                 {
                     continue;
                 }
-                
+
                 if (!Bottles.All(b => b.IsCompleted) || failed)
                 {
 #if DEBUG
@@ -104,13 +109,12 @@ namespace WaterColorSort
                     continue;
                 }
 
-                Task.Delay(500).Wait();
                 Console.Clear();
                 Bottle.PrintColoredBottles(Bottles, del);
                 Console.WriteLine($"{final.Count} MOVES PERFORMED");
 
                 del.Clear();
-                Task.Delay(1500).Wait();
+                Task.Delay(3000).Wait();
                 Move.GotoNext();
             }
         }

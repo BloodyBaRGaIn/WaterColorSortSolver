@@ -15,12 +15,18 @@ namespace WaterColorSort.Classes
             this.name = name;
         }
 
-        public override bool Equals(object obj) => obj != null &&
-                                                   obj is NamedBitmap other &&
-                                                   EqualityComparer<Bitmap>.Default.Equals(img, other.img) &&
-                                                   name == other.name;
+        public override bool Equals(object obj)
+        {
+            return obj != null &&
+              obj is NamedBitmap other &&
+              EqualityComparer<Bitmap>.Default.Equals(img, other.img) &&
+              name == other.name;
+        }
 
-        public override int GetHashCode() => HashCode.Combine(img, name);
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(img, name);
+        }
 
         public void Deconstruct(out Bitmap img, out string name)
         {
@@ -28,8 +34,14 @@ namespace WaterColorSort.Classes
             name = this.name;
         }
 
-        public static implicit operator (Bitmap img, string name)(NamedBitmap value) => (value.img, value.name);
+        public static implicit operator (Bitmap img, string name)(NamedBitmap value)
+        {
+            return (value.img, value.name);
+        }
 
-        public static implicit operator NamedBitmap((Bitmap img, string name) value) => new(value.img, value.name);
+        public static implicit operator NamedBitmap((Bitmap img, string name) value)
+        {
+            return new(value.img, value.name);
+        }
     }
 }

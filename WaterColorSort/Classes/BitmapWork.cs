@@ -1,7 +1,6 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -11,38 +10,35 @@ using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class BitmapWork
     {
-        internal static int X = 0;
-        internal static int Y = 0;
-        internal static int W = 0;
-        internal static int H = 0;
-        internal const bool SaveImageEnabled = true;
+        internal static Point Location = Point.Empty;
+        internal static Size Size = Size.Empty;
         internal static Color empty;
 
-        internal static readonly List<(NamedBitmap namedBitmap, ConsoleColor color)> named_resources;
+        internal static readonly List<ColoredBitmap> named_resources;
 
         static BitmapWork()
         {
             named_resources = new(13)
             {
-                (new(Resources.Palette.blue, nameof(Resources.Palette.blue)), ConsoleColor.Blue),
-                (new(Resources.Palette.brown, nameof(Resources.Palette.brown)), ConsoleColor.DarkRed),
-                (new(Resources.Palette.cyan, nameof(Resources.Palette.cyan)), ConsoleColor.Cyan),
-                (new(Resources.Palette.dark_cyan, nameof(Resources.Palette.dark_cyan)), ConsoleColor.DarkCyan),
-                (new(Resources.Palette.empty, nameof(Resources.Palette.empty)), ConsoleColor.Black),
-                (new(Resources.Palette.gray, nameof(Resources.Palette.gray)), ConsoleColor.DarkGray),
-                (new(Resources.Palette.green, nameof(Resources.Palette.green)), ConsoleColor.Green),
-                (new(Resources.Palette.magenta, nameof(Resources.Palette.magenta)), ConsoleColor.Magenta),
-                (new(Resources.Palette.orange, nameof(Resources.Palette.orange)), ConsoleColor.DarkYellow),
-                (new(Resources.Palette.pink, nameof(Resources.Palette.pink)), ConsoleColor.White),
-                (new(Resources.Palette.purple, nameof(Resources.Palette.purple)), ConsoleColor.DarkMagenta),
-                (new(Resources.Palette.red, nameof(Resources.Palette.red)), ConsoleColor.Red),
-                (new(Resources.Palette.yellow, nameof(Resources.Palette.yellow)), ConsoleColor.Yellow),
+                new(new(Resources.Palette.blue, nameof(Resources.Palette.blue)), ConsoleColor.Blue),
+                new(new(Resources.Palette.brown, nameof(Resources.Palette.brown)), ConsoleColor.DarkRed),
+                new(new(Resources.Palette.cyan, nameof(Resources.Palette.cyan)), ConsoleColor.Cyan),
+                new(new(Resources.Palette.dark_cyan, nameof(Resources.Palette.dark_cyan)), ConsoleColor.DarkCyan),
+                new(new(Resources.Palette.empty, nameof(Resources.Palette.empty)), ConsoleColor.Black),
+                new(new(Resources.Palette.gray, nameof(Resources.Palette.gray)), ConsoleColor.DarkGray),
+                new(new(Resources.Palette.green, nameof(Resources.Palette.green)), ConsoleColor.Green),
+                new(new(Resources.Palette.magenta, nameof(Resources.Palette.magenta)), ConsoleColor.Magenta),
+                new(new(Resources.Palette.orange, nameof(Resources.Palette.orange)), ConsoleColor.DarkYellow),
+                new(new(Resources.Palette.pink, nameof(Resources.Palette.pink)), ConsoleColor.White),
+                new(new(Resources.Palette.purple, nameof(Resources.Palette.purple)), ConsoleColor.DarkMagenta),
+                new(new(Resources.Palette.red, nameof(Resources.Palette.red)), ConsoleColor.Red),
+                new(new(Resources.Palette.yellow, nameof(Resources.Palette.yellow)), ConsoleColor.Yellow),
             };
         }
 
-        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         private static Bitmap GetImageFromStream()
         {
             StreamReader stream = ProcessWork.GetStream($"shell screencap -p");
@@ -71,17 +67,12 @@ namespace WaterColorSort.Classes
             return data.Count == 0 ? null : new(new MemoryStream(data.ToArray()));
         }
 
-        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         internal static IEnumerable<PixelData> GetPixels()
         {
             using Bitmap image = GetBitmap();
-            if (SaveImageEnabled)
-            {
-#pragma warning disable CS0162
-                image.Save("test.jpg", ImageFormat.Jpeg);
-#pragma warning restore CS0162
-            }
-
+#if DEBUG
+            image.Save("test.jpg", ImageFormat.Jpeg);
+#endif
             List<PixelFindStruct> input_collection = named_resources
                 .Select(s => new PixelFindStruct(
                     s.namedBitmap, new Bitmap(image).Clone(new(Point.Empty, image.Size), image.PixelFormat),
@@ -92,19 +83,23 @@ namespace WaterColorSort.Classes
             return input_collection.SelectMany(i => i.result);
         }
 
-        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         internal static Bitmap GetBitmap()
         {
             Bitmap temp_map = GetImageFromStream();
-            X = 0;
-            Y = (int)(temp_map.Height * 0.25f);
-            W = temp_map.Width;
-            H = (int)(temp_map.Height * 0.55f);
-            temp_map = temp_map.Clone(new(X, Y, W, H), PixelFormat.Format32bppArgb);
+            if (temp_map == null)
+            {
+                ProcessWork.Status |= ADBStatus.ExecError;
+                ProcessWork.ThrowError();
+                return null;
+            }
+            Location.X = 0;
+            Location.Y = (int)(temp_map.Height * 0.25f);
+            Size.Width = temp_map.Width;
+            Size.Height = (int)(temp_map.Height * 0.55f);
+            temp_map = temp_map.Clone(new(Location, Size), PixelFormat.Format32bppArgb);
             return temp_map;
         }
 
-        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         internal static List<Point> FindBitmapsEntry(Bitmap sourceBitmap, Bitmap serchingBitmap, int toleration)
         {
             if (sourceBitmap == null)
@@ -205,28 +200,20 @@ namespace WaterColorSort.Classes
             return pointsList;
         }
 
-        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         internal static void SaveColorImage(List<List<PixelData>> bottle_pixel_list, Rectangle bounds, Size size)
         {
-#pragma warning disable CS0162
-            if (!SaveImageEnabled)
-            {
-                return;
-            }
             using Bitmap image = new(bounds.Width, bounds.Height);
             using Graphics graphics = Graphics.FromImage(image);
             foreach (IEnumerable<PixelData> bottle_pixels in bottle_pixel_list)
             {
                 foreach (PixelData data in bottle_pixels)
                 {
-                    graphics.FillRectangle(new SolidBrush(data.userColor), new Rectangle(new(data.x, data.y), size));
+                    graphics.FillRectangle(new SolidBrush(data.userColor), new Rectangle(new(data.X, data.Y), size));
                 }
             }
             image.Save("level_find.png");
-#pragma warning restore CS0162
         }
 
-        [SuppressMessage("Interoperability", "CA1416", Justification = "<Waiting>")]
         private static readonly Action<PixelFindStruct> ForeachLoopAction = new(param =>
         {
             using Bitmap img_cpy = param.img_cpy;

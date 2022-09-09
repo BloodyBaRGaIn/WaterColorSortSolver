@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal sealed class Bottle : Stack<UserColor>
     {
         private const int PixelGroupMinSize = 20;
@@ -18,9 +19,15 @@ namespace WaterColorSort.Classes
 
         private delegate void Print(int idx, params object[] param);
 
-        private Bottle(params Color[] colors) => PushColors(from Color c in colors select (UserColor)c);
+        private Bottle(params Color[] colors)
+        {
+            PushColors(from Color c in colors select (UserColor)c);
+        }
 
-        private Bottle(in UserColor[] colors) => PushColors(colors);
+        private Bottle(in UserColor[] colors)
+        {
+            PushColors(colors);
+        }
 
         private void PushColors(IEnumerable<UserColor> colors)
         {
@@ -73,16 +80,25 @@ namespace WaterColorSort.Classes
             return true;
         }
 
-        private static bool IsPossibleTransfer(in List<Bottle> bottles, in int from, in int to) => IsPossibleTransfer(bottles[from], bottles[to]);
+        private static bool IsPossibleTransfer(in List<Bottle> bottles, in int from, in int to)
+        {
+            return IsPossibleTransfer(bottles[from], bottles[to]);
+        }
 
-        private static bool IsPossibleTransfer(in Bottle from, in Bottle to) => (from.Distinct().Count() > 1 || to.Count != 0)
-                                                                                 && !from.Equals(to)
-                                                                                 && from.Count > 0
-                                                                                 && to.Count < CURR_SIZE
-                                                                                 && (to.Count == 0 || (from.Peek() == to.Peek()));
+        private static bool IsPossibleTransfer(in Bottle from, in Bottle to)
+        {
+            return (from.Distinct().Count() > 1 || to.Count != 0)
+               && !from.Equals(to)
+               && from.Count > 0
+               && to.Count < CURR_SIZE
+               && (to.Count == 0 || (from.Peek() == to.Peek()));
+        }
 
-        private static IEnumerable<Move> GetMoves(List<Bottle> bottles) => NonOpt(bottles).OrderByDescending(b => bottles[b.to].Count)
-                                                                                          .ThenBy(b => bottles[b.to].Distinct().Count());
+        private static IEnumerable<Move> GetMoves(List<Bottle> bottles)
+        {
+            return NonOpt(bottles).OrderByDescending(b => bottles[b.to].Count)
+                             .ThenBy(b => bottles[b.to].Distinct().Count());
+        }
 
         private static IEnumerable<Move> NonOpt(List<Bottle> bottles)
         {
@@ -144,7 +160,7 @@ namespace WaterColorSort.Classes
                     continue;
                 }
                 int min_y = 0;
-                var gr_empty = b.Where(d => d.userColor == BitmapWork.empty).GroupBy(PixelData.DataY).Where(g => g.Count() >= PixelGroupMinSize);
+                IEnumerable<IGrouping<int, PixelData>> gr_empty = b.Where(d => d.userColor == BitmapWork.empty).GroupBy(PixelData.DataY).Where(g => g.Count() >= PixelGroupMinSize);
                 if (gr_empty.Any())
                 {
                     min_y = gr_empty.OrderBy(g => g.Key).First().Key;
@@ -155,22 +171,25 @@ namespace WaterColorSort.Classes
                 }
                 int max_y = b.Where(d => d.userColor != BitmapWork.empty).Max(PixelData.DataY);
                 min_y += (max_y - min_y) / 8;
-                if (segment_len == -1) segment_len = ((max_y - min_y) / CURR_SIZE) + 1;
+                if (segment_len == -1)
+                {
+                    segment_len = ((max_y - min_y) / CURR_SIZE) + 1;
+                }
+
                 Bottle new_b = new();
                 for (int seg = 1; seg <= CURR_SIZE; seg++)
                 {
                     int y_lim_min = max_y - (seg * segment_len);
-                    IEnumerable<IGrouping<UserColor, PixelData>> groups = b.Where(d => d.y >= y_lim_min && d.y < y_lim_min + segment_len)
+                    IEnumerable<IGrouping<UserColor, PixelData>> groups = b.Where(d => d.Y >= y_lim_min && d.Y < y_lim_min + segment_len)
                                                                            .GroupBy(d => d.userColor)
                                                                            .OrderByDescending(gr => gr.Count());
                     if (groups.Any() && groups.First().Count() > PixelGroupMinSize)
                     {
                         UserColor color = groups.First().Key;
-                        if (color == BitmapWork.empty)
+                        if (color != BitmapWork.empty)
                         {
-                            //return false;
+                            new_b.Push(color);
                         }
-                        else new_b.Push(color);
                     }
                 }
                 bottles.Add(new_b);
@@ -193,10 +212,9 @@ namespace WaterColorSort.Classes
 
         private static void Solve(List<Bottle> Bottles, in List<Tree> trees)
         {
-            Tree temp;
             foreach (Move move in GetMoves(Bottles))
             {
-                temp = new();
+                Tree temp = new();
                 using (Task SolveTask = Task.Run(() => MakeMove(Bottles, temp, move)))
                 {
                     if (SolveTask.Wait(5000) && Solution_Found)
@@ -237,9 +255,15 @@ namespace WaterColorSort.Classes
             Console.WriteLine();
         }
 
-        internal static List<Bottle> CopyBottles(in List<Bottle> bottles) => bottles.Select(b => new Bottle(b.Reverse().ToArray())).ToList();
+        internal static List<Bottle> CopyBottles(in List<Bottle> bottles)
+        {
+            return bottles.Select(b => new Bottle(b.Reverse().ToArray())).ToList();
+        }
 
-        internal static bool TransferColors(List<Bottle> bottles, Move move) => TransferColors(bottles[move.from], bottles[move.to]);
+        internal static bool TransferColors(List<Bottle> bottles, Move move)
+        {
+            return TransferColors(bottles[move.from], bottles[move.to]);
+        }
 
         internal static bool FillAndSolve(List<Bottle> Bottles, List<List<PixelData>> bottle_pixel_list, List<Tree> trees, List<int> del)
         {
@@ -325,9 +349,15 @@ namespace WaterColorSort.Classes
             base.Push(item);
         }
 
-        public override bool Equals(object obj) => obj is Bottle bottle && base.Equals(bottle);
+        public override bool Equals(object obj)
+        {
+            return obj is Bottle bottle && base.Equals(bottle);
+        }
 
-        public override int GetHashCode() => base.GetHashCode();
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
 
         public override string ToString()
         {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal sealed class Tree : List<Tree>
     {
         internal Move Value;
@@ -51,7 +52,7 @@ namespace WaterColorSort.Classes
             final.Clear();
             foreach (Tree tree in trees.Where(t => t.Root().TotalCount() > 0).OrderBy(t => t.Root().TotalCount()))
             {
-                using (Task SolveTask = Task.Run(() =>
+                using (Task FindTask = Task.Run(() =>
                 {
                     while (!tree.Any(t => t.Value.Win))
                     {
@@ -59,7 +60,7 @@ namespace WaterColorSort.Classes
                     }
                 }))
                 {
-                    if (SolveTask.Wait(2000))
+                    if (FindTask.Wait(2000))
                     {
                         f_list.Clear();
                         tree.FillMoves(f_list);
