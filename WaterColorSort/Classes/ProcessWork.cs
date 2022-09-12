@@ -5,20 +5,6 @@ using System.Threading.Tasks;
 
 namespace WaterColorSort.Classes
 {
-    [Flags]
-    internal enum ADBStatus : byte
-    {
-        Ok = 0,
-        NoADB = 1,
-        ExecError = 2,
-        NoDevice = 4,
-        TooManyDevice = 8,
-        NoApp = 16,
-        DeviceLocked = 32,
-        NoFocus = 64
-    };
-
-
     internal static class ProcessWork
     {
         private const string AppName = "com.vnstartllc.sort.water";
@@ -100,11 +86,16 @@ namespace WaterColorSort.Classes
             {
                 command += MakeClickCommand(ps[0]);
             }
-            await RunCommand(command);
+            Task commandTask = RunCommand(command);
+            await (commandTask ?? Task.Delay(1));
         }
 
         internal static StreamReader GetStream(string command)
         {
+            if (Status != ADBStatus.Ok)
+            {
+                return null;
+            }
             return Process.Start(GetInfo(command)).StandardOutput;
         }
 
@@ -115,6 +106,10 @@ namespace WaterColorSort.Classes
 
         private static Task RunCommand(string command)
         {
+            if (Status != ADBStatus.Ok)
+            {
+                return null;
+            }
             Process process = Process.Start(GetInfo(command));
             string error = process.StandardError.ReadToEnd();
             if (error.Contains("Error") || error.Contains("no devices/emulators found"))
@@ -191,9 +186,14 @@ namespace WaterColorSort.Classes
             Environment.Exit(code);
         }
 
-        private static Task ThrowTask = null;
+        private static volatile Task ThrowTask = null;
 
-        private static string error_text = "";
+        private static volatile string error_text = "";
+
+        private static bool IsStatus(ADBStatus flag)
+        {
+            return (Status & flag) == flag;
+        }
 
         internal static void ThrowError()
         {
@@ -202,31 +202,31 @@ namespace WaterColorSort.Classes
                 return;
             }
 
-            if ((Status & ADBStatus.NoADB) == ADBStatus.NoADB)
+            if (IsStatus(ADBStatus.NoADB))
             {
                 error_text += $"Cannot find file {ADBPATH}\nProgram cannot start\n";
             }
-            if ((Status & ADBStatus.ExecError) == ADBStatus.ExecError)
+            if (IsStatus(ADBStatus.ExecError))
             {
                 error_text += "Connection lost\n";
             }
-            if ((Status & ADBStatus.NoDevice) == ADBStatus.NoDevice)
+            if (IsStatus(ADBStatus.NoDevice))
             {
                 error_text += "No devices connected\n";
             }
-            if ((Status & ADBStatus.TooManyDevice) == ADBStatus.TooManyDevice)
+            if (IsStatus(ADBStatus.TooManyDevice))
             {
                 error_text += "Too many devices connected\n";
             }
-            if ((Status & ADBStatus.NoApp) == ADBStatus.NoApp)
+            if (IsStatus(ADBStatus.NoApp))
             {
                 error_text += "Target application not found\n";
             }
-            if ((Status & ADBStatus.DeviceLocked) == ADBStatus.DeviceLocked)
+            if (IsStatus(ADBStatus.DeviceLocked))
             {
                 error_text += "Device is locked\n";
             }
-            if ((Status & ADBStatus.NoFocus) == ADBStatus.NoFocus)
+            if (IsStatus(ADBStatus.NoFocus))
             {
                 error_text += "Target app is not in focus\n";
             }
@@ -259,9 +259,9 @@ namespace WaterColorSort.Classes
                 delaytask.Dispose();
             }
             using StreamReader stream = GetStream(command);
-            string read = stream.ReadToEnd();
-            stream.Close();
-            stream.Dispose();
+            string read = stream?.ReadToEnd() ?? string.Empty;
+            stream?.Close();
+            stream?.Dispose();
             return read;
         }
     }

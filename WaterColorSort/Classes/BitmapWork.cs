@@ -42,6 +42,10 @@ namespace WaterColorSort.Classes
         private static Bitmap GetImageFromStream()
         {
             StreamReader stream = ProcessWork.GetStream($"shell screencap -p");
+            if (stream == null)
+            {
+                return null;
+            }
             const int Capacity = 1024;
             List<byte> data = new(Capacity);
             byte[] buf = new byte[Capacity];
