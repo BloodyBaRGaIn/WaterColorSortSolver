@@ -210,9 +210,14 @@ namespace WaterColorSort.Classes
             return true;
         }
 
-        private static void Solve(List<Bottle> Bottles, in List<Tree> trees)
+        private static bool Solve(List<Bottle> Bottles, in List<Tree> trees)
         {
-            foreach (Move move in GetMoves(Bottles))
+            var get_moves = GetMoves(Bottles);
+            if (!get_moves.Any())
+            {
+                return false;
+            }
+            foreach (Move move in get_moves)
             {
                 Tree temp = new();
                 using (Task SolveTask = Task.Run(() => MakeMove(Bottles, temp, move)))
@@ -240,6 +245,7 @@ namespace WaterColorSort.Classes
                 }
                 GC.Collect();
             }
+            return true;
         }
 
         private static void UniversalPrint(in int idx, in List<int> del, in Print print, params object[] param)
@@ -278,7 +284,11 @@ namespace WaterColorSort.Classes
                     Console.Clear();
                     PrintColoredBottles(Bottles, del);
                     Console.WriteLine("SOLVING...");
-                    Solve(Bottles, trees);
+                    if (!Solve(Bottles, trees))
+                    {
+                        Console.WriteLine("No moves found. Restart the level");
+                        return false;
+                    }
                 }
                 if (trees.Count == 0)
                 {
