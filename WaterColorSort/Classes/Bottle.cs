@@ -96,11 +96,11 @@ namespace WaterColorSort.Classes
 
         private static IEnumerable<Move> GetMoves(List<Bottle> bottles)
         {
-            return NonOpt(bottles).OrderByDescending(b => bottles[b.to].Count)
-                             .ThenBy(b => bottles[b.to].Distinct().Count());
+            return GetBtuteForceMoves(bottles).OrderByDescending(b => bottles[b.to].Count)
+                                              .ThenBy(b => bottles[b.to].Distinct().Count());
         }
 
-        private static IEnumerable<Move> NonOpt(List<Bottle> bottles)
+        private static IEnumerable<Move> GetBtuteForceMoves(List<Bottle> bottles)
         {
             for (int i = 0; i < bottles.Count; i++)
             {
@@ -183,9 +183,11 @@ namespace WaterColorSort.Classes
                     IEnumerable<IGrouping<UserColor, PixelData>> groups = b.Where(d => d.Y >= y_lim_min && d.Y < y_lim_min + segment_len)
                                                                            .GroupBy(d => d.userColor)
                                                                            .OrderByDescending(gr => gr.Count());
-                    if (groups.Any() && groups.First().Count() > PixelGroupMinSize)
+
+                    IGrouping<UserColor, PixelData> first_group = groups.FirstOrDefault();
+                    if (groups.Any() && first_group.Count() > PixelGroupMinSize)
                     {
-                        UserColor color = groups.First().Key;
+                        UserColor color = first_group.Key;
                         if (color != BitmapWork.empty)
                         {
                             new_b.Push(color);
@@ -252,7 +254,8 @@ namespace WaterColorSort.Classes
         {
             if (idx > 0 && del[idx + 1] - del[idx] != del[idx] - del[idx - 1])
             {
-                Console.Write("  ");
+                Console.Write(' ');
+                Console.Write(' ');
             }
             for (int b = del[idx]; b < del[idx + 1]; b++)
             {
@@ -312,15 +315,16 @@ namespace WaterColorSort.Classes
 
         internal static int ApplyMoves(in List<Bottle> bottles, in List<Move> moves)
         {
-            for (int i = 0; i < moves.Count; i++)
+            int i = 0;
+            for (; i < moves.Count; i++)
             {
                 Move move = moves[i];
                 if (!TransferColors(bottles, move))
                 {
-                    return i;
+                    break;
                 }
             }
-            return moves.Count;
+            return i;
         }
 
         internal static void PrintBottles(in List<Bottle> Bottles)

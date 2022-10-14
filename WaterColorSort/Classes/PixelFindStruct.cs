@@ -4,6 +4,7 @@ using System.Drawing;
 
 namespace WaterColorSort.Classes
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal readonly struct PixelFindStruct
     {
         internal readonly NamedBitmap namedBitmap;

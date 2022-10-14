@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -206,6 +205,7 @@ namespace WaterColorSort.Classes
 
         internal static void SaveColorImage(List<List<PixelData>> bottle_pixel_list, Rectangle bounds, Size size)
         {
+#if DEBUG
             using Bitmap image = new(bounds.Width, bounds.Height);
             using Graphics graphics = Graphics.FromImage(image);
             foreach (IEnumerable<PixelData> bottle_pixels in bottle_pixel_list)
@@ -216,6 +216,7 @@ namespace WaterColorSort.Classes
                 }
             }
             image.Save("level_find.png");
+#endif
         }
 
         private static readonly Action<PixelFindStruct> ForeachLoopAction = new(param =>

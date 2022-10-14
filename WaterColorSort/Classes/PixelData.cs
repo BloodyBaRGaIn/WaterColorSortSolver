@@ -16,8 +16,8 @@ namespace WaterColorSort.Classes
 
         internal PixelData(int x, int y, UserColor userColor)
         {
-            this.X = x;
-            this.Y = y;
+            X = x;
+            Y = y;
             this.userColor = userColor;
         }
 

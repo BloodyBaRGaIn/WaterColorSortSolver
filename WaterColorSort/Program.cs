@@ -15,30 +15,38 @@ namespace WaterColorSort
     {
         private const int Offset = 20;
 
+        private static readonly List<Bottle> Bottles = new();
+
+        private static readonly List<PixelData> pixelDatas = new();
+
+        private static readonly List<List<PixelData>> bottle_pixel_list = new();
+
+        private static readonly List<int> y_layers = new();
+
+        private static readonly List<Tree> trees = new();
+
+        private static readonly List<Move> final = new();
+
         private static void Main()
         {
             #region Init
             Console.OutputEncoding = System.Text.Encoding.Unicode;
-            List<Bottle> Bottles = new();
-            List<PixelData> pixelDatas = new();
-            List<List<PixelData>> bottle_pixel_list = new();
-            List<int> y_layers = new();
-            List<Tree> trees = new();
-            List<Move> final = new();
+
             ProcessWork.KillADB();
+
             #endregion
             while (true)
             {
                 Thread.Sleep(1000);
 
                 Console.Clear();
-#if DEBUG
-                Console.WriteLine("START");
-#endif
+
+                ConsoleWorkaround.WriteLine("START");
+
                 ProcessWork.StartApp();
-#if DEBUG
-                Console.WriteLine("APP STARTED");
-#endif
+
+                ConsoleWorkaround.WriteLine("APP STARTED");
+
                 ProcessWork.StartLiveConnectionCheck();
 
                 #region Clear
@@ -55,50 +63,49 @@ namespace WaterColorSort
                 {
                     continue;
                 }
-#if DEBUG
-                Console.WriteLine("GOT PIXELS");
-#endif
+
+                ConsoleWorkaround.WriteLine("GOT PIXELS");
+
                 if (!PixelData.FillYLayers(y_layers, pixelDatas)
                     || !PixelData.MakeDataSets(y_layers, pixelDatas, bottle_pixel_list, out List<int> del))
                 {
                     continue;
                 }
-#if DEBUG
-                Console.WriteLine("DATA STRUCTURED");
-#endif
-#if DEBUG
+
+                ConsoleWorkaround.WriteLine("DATA STRUCTURED");
+
                 BitmapWork.SaveColorImage(bottle_pixel_list, new(Point.Empty, BitmapWork.Size), new Size(1, 1) * PixelData.PixelSize);
-#endif
+
                 bottle_pixel_list.RemoveAll(p => p.Count <= 10);
                 Bottle.Solution_Found = false;
                 if (!Bottle.FillAndSolve(Bottles, bottle_pixel_list, trees, del))
                 {
                     continue;
                 }
-#if DEBUG
-                Console.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
-#endif
+
+                ConsoleWorkaround.WriteLine($"SOLVED FOR BOTTLES CAPACITY OF {Bottle.CURR_SIZE}");
+
                 if (!Tree.TraceSolution(trees, final))
                 {
                     continue;
                 }
-#if DEBUG
-                Console.WriteLine("MINIMAL SOLUTION TRACED");
-#endif
+
+                ConsoleWorkaround.WriteLine("MINIMAL SOLUTION TRACED");
+
                 Move.ClearMoves(final);
-#if DEBUG
-                Console.WriteLine($"\nTOTAL MOVES COUNT: {final.Count}");
-#endif
+
+                ConsoleWorkaround.WriteLine($"\nTOTAL MOVES COUNT: {final.Count}");
+
                 int done = Bottle.ApplyMoves(Bottle.CopyBottles(Bottles), final);
                 bool failed = false;
                 if (done != final.Count)
                 {
-                    final = final.Take(done).ToList();
+                    final.RemoveRange(done, final.Count - done);
                     failed = true;
                 }
-#if DEBUG
-                Console.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
-#endif
+
+                ConsoleWorkaround.WriteLine(failed ? $"{final.Count}/{done} APPLIED" : "APPLIED SUCCESSFULLY");
+
                 if (!Move.PerformMoves(bottle_pixel_list, Bottles, del, final, Offset))
                 {
                     continue;
@@ -106,9 +113,7 @@ namespace WaterColorSort
 
                 if (!Bottles.All(b => b.IsCompleted) || failed)
                 {
-#if DEBUG
-                    Console.WriteLine("\nFAILED\n");
-#endif
+                    ConsoleWorkaround.WriteLine("\nFAILED\n");
                     continue;
                 }
 
